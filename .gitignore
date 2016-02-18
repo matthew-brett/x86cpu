@@ -1,0 +1,5 @@
+*.pyc
+cpuid.c
+*.so
+*.o
+build/
