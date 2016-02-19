@@ -10,15 +10,6 @@
 
 #include "_cpuid.h"
 
-/*
- * Union to read bytes in 32 (intel) bits registers
- */
-union _le_reg {
-        uint8_t ccnt[4];
-        uint32_t reg;
-} __attribute__ ((packed));
-typedef union _le_reg le_reg_t ;
-
 
 inline void read_cpuid(uint32_t op, cpuid_t* reg){
 #if defined(_MSC_VER)
@@ -43,24 +34,10 @@ inline void read_cpuid(uint32_t op, cpuid_t* reg){
 /*
  * vendor should have at least CPUID_VENDOR_STRING_LEN characters
  */
-void get_vendor_string(cpuid_t cpuid, char vendor[])
+void get_vendor_string(cpuid_t cpuid, char *vendor)
 {
-    int i;
-    le_reg_t treg;
-
-    treg.reg = cpuid.ebx;
-    for (i = 0; i < 4; ++i) {
-            vendor[i] = treg.ccnt[i];
-    }
-
-    treg.reg = cpuid.edx;
-    for (i = 0; i < 4; ++i) {
-            vendor[i+4] = treg.ccnt[i];
-    }
-
-    treg.reg = cpuid.ecx;
-    for (i = 0; i < 4; ++i) {
-            vendor[i+8] = treg.ccnt[i];
-    }
+    memcpy(vendor, &(cpuid.ebx), 4);
+    memcpy(vendor + 4, &(cpuid.edx), 4);
+    memcpy(vendor + 8, &(cpuid.ecx), 4);
     vendor[12] = '\0';
 }
