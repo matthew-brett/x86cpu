@@ -19,6 +19,9 @@ void read_cpuid(uint32_t op, cpuid_t* reg){
     reg->ecx = cpu_info[2];
     reg->edx = cpu_info[3];
 #elif defined(__i386__) && defined(__PIC__)
+    /* see:
+     * https://software.intel.com/en-us/articles/how-to-detect-new-instruction-support-in-the-4th-generation-intel-core-processor-family
+     */
     __asm__ __volatile__
         ("mov %%ebx, %%edi;"
          "cpuid;"

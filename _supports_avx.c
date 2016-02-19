@@ -21,7 +21,12 @@
 
 void _xgetbv(uint32_t op, uint32_t* eax_var, uint32_t* edx_var)
 {
-    /* Use binary code for xgetbv */
+    /* Use binary code for xgetbv
+     *
+     * We should not reach this check unless cpuid says the CPU has xgetbv
+     * instructions via cpuid(1) and ECX bit 26 (xsave):
+     * https://en.wikipedia.org/wiki/CPUID
+     */
     __asm__ __volatile__
         (".byte 0x0f, 0x01, 0xd0": "=a" (*eax_var), "=d" (*edx_var) : "c" (op) : "cc");
 }
