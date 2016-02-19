@@ -10,7 +10,8 @@
 #include "_cpuid.h"
 
 
-void read_cpuid(uint32_t op, cpuid_t* reg){
+void read_cpuid(uint32_t op, cpuid_t* reg)
+{
 #if defined(_MSC_VER)
     int cpu_info[4] = {-1};
     __cpuid(cpu_info, (int)op);
@@ -33,11 +34,15 @@ void read_cpuid(uint32_t op, cpuid_t* reg){
 #endif
 }
 
-void get_vendor_string(cpuid_t cpuid, char *vendor)
+char* get_vendor_string(cpuid_t cpuid)
 {
     /* Fetch vendor string from ebx, edx, ecx */
-    memcpy(vendor, &(cpuid.ebx), 4);
-    memcpy(vendor + 4, &(cpuid.edx), 4);
-    memcpy(vendor + 8, &(cpuid.ecx), 4);
+    char vendor[13];
+    uint32_t* char_as_int=(uint32_t*)vendor;
+
+    *(char_as_int++) = cpuid.ebx;
+    *(char_as_int++) = cpuid.edx;
+    *(char_as_int++) = cpuid.ecx;
     vendor[12] = '\0';
+    return vendor;
 }

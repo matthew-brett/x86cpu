@@ -1,19 +1,20 @@
 """ Testing cpuid module
 """
 
-import numpy as np
-
 from cpuid import get_vendor, get_classifiers, supports_avx, get_cpuid
 
-from numpy.testing import (assert_almost_equal,
-                           assert_array_equal)
+from cpuinfo.cpuinfo import get_cpu_info
 
-from nose.tools import (assert_true, assert_false, assert_raises,
-                        assert_equal, assert_not_equal)
-
+CPU_INFO = get_cpu_info()
 
 def test_smoke():
-    vendor = get_vendor()
-    classifiers = get_classifiers()
     avx = supports_avx()
     cpuid = get_cpuid(0)
+
+
+def test_against_cpuinfo():
+    assert get_vendor() == CPU_INFO['vendor_id']
+    classifiers = get_classifiers()
+    for attr_name in ('model', 'family', 'extended_family', 'extended_model',
+                      'stepping', 'processor_type'):
+        assert getattr(classifiers, attr_name) == CPU_INFO[attr_name]

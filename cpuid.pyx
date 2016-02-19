@@ -14,7 +14,7 @@ cdef extern from "_cpuid.h":
         uint32_t ecx
         uint32_t edx
     void read_cpuid(uint32_t eax, cpuid_t* res)
-    void get_vendor_string(cpuid_t, char vendor[])
+    char* get_vendor_string(cpuid_t)
     int os_restores_ymm()
 
 
@@ -28,9 +28,7 @@ cpdef cpuid_t get_cpuid(uint32_t op):
 def get_vendor():
     """ Return vendor string by querying cpuid
     """
-    cdef char name[13]
-    get_vendor_string(get_cpuid(0), name)
-    return name
+    return get_vendor_string(get_cpuid(0))
 
 
 def _all_set(val, bits):
@@ -74,7 +72,7 @@ cdef int _bitmask(uint32_t a, uint32_t b, uint32_t c):
 
 
 cpu_ids = namedtuple('cpu_ids',
-                     ['family', 'model', 'ext_family', 'ext_model',
+                     ['family', 'model', 'extended_family', 'extended_model',
                       'stepping', 'processor_type'])
 
 
@@ -88,6 +86,6 @@ def get_classifiers():
     family = _bitmask(eax, 8, 0x0f)
     model = _bitmask(eax,  4, 0x0f)
     stepping  = _bitmask(eax,  0, 0x0f)
-    return cpu_ids(family=family, model=model, ext_family=ext_family,
-                   ext_model=ext_model, stepping=stepping,
+    return cpu_ids(family=family, model=model, extended_family=ext_family,
+                   extended_model=ext_model, stepping=stepping,
                    processor_type=ptype)

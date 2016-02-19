@@ -14,7 +14,7 @@ typedef struct {
 } cpuid_t;
 
 void read_cpuid(uint32_t eax, cpuid_t* res);
-void get_vendor_string(cpuid_t, char []);
+char* get_vendor_string(cpuid_t);
 int os_restores_ymm(void);
 
 #endif
