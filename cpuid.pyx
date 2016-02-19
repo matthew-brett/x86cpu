@@ -15,7 +15,7 @@ cdef extern from "_cpuid.h":
         uint32_t edx
     void read_cpuid(uint32_t eax, cpuid_t* res)
     void get_vendor_string(cpuid_t, char vendor[])
-    void xgetbv(uint32_t, uint32_t*, uint32_t*)
+    int os_supports_avx()
 
 
 cpdef cpuid_t get_cpuid(uint32_t op):
@@ -52,13 +52,10 @@ def supports_axx():
     avx_ok : bool
         True if CPU and OS support AVX
     """
-    reg = get_cpuid(1)
-    if not _all_set(reg.edx, [26, 27, 28]):
+    reg1 = get_cpuid(1)
+    if not _all_set(reg1.edx, [26, 27, 28]):
         return False
-    # XFEATURE_ENABLED_MASK/XCR0 register number = 0
-    xgetbv(0, &(reg.eax), &(reg.edx))
-    # XFEATURE_ENABLED_MASK register is in edx:eax
-    return (reg.eax & 6) == 6
+    return bool(os_supports_avx())
 
 
 def _bitmask(a, b, c):

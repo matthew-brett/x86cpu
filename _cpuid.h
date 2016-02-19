@@ -15,6 +15,6 @@ typedef struct {
 
 void read_cpuid(uint32_t eax, cpuid_t* res);
 void get_vendor_string(cpuid_t, char []);
-void xgetbv(uint32_t, uint32_t*, uint32_t*);
+int os_supports_avx(void);
 
 #endif
