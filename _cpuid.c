@@ -11,7 +11,7 @@
 #include "_cpuid.h"
 
 
-inline void read_cpuid(uint32_t op, cpuid_t* reg){
+void read_cpuid(uint32_t op, cpuid_t* reg){
 #if defined(_MSC_VER)
     int cpu_info[4] = {-1};
     __cpuid(cpu_info, (int)op);
