@@ -10,10 +10,6 @@
 
 #include "_cpuid.h"
 
-#ifndef __GNUC__
-#error "Sorry, this code can only be compiled with gcc for now"
-#endif
-
 /*
  * Union to read bytes in 32 (intel) bits registers
  */
@@ -25,22 +21,29 @@ typedef union _le_reg le_reg_t ;
 
 
 inline void read_cpuid(uint32_t op, cpuid_t* reg){
-#if defined(__i386__) && defined(__PIC__)
-  __asm__ __volatile__
-    ("mov %%ebx, %%edi;"
-     "cpuid;"
-     "xchgl %%ebx, %%edi;"
-     : "=a" (reg->eax), "=D" (reg->ebx), "=c" (reg->ecx), "=d" (reg->edx) : "a" (op) : "cc");
+#if defined(_MSC_VER)
+    int cpu_info[4] = {-1};
+    __cpuid(cpu_info, (int)op);
+    reg->eax = cpu_info[0];
+    reg->ebx = cpu_info[1];
+    reg->ecx = cpu_info[2];
+    reg->edx = cpu_info[3];
+#elif defined(__i386__) && defined(__PIC__)
+    __asm__ __volatile__
+        ("mov %%ebx, %%edi;"
+         "cpuid;"
+         "xchgl %%ebx, %%edi;"
+         : "=a" (reg->eax), "=D" (reg->ebx), "=c" (reg->ecx), "=d" (reg->edx) : "a" (op) : "cc");
 #else
-  __asm__ __volatile__
-    ("cpuid": "=a" (reg->eax), "=b" (reg->ebx), "=c" (reg->ecx), "=d" (reg->edx) : "a" (op) : "cc");
+    __asm__ __volatile__
+        ("cpuid": "=a" (reg->eax), "=b" (reg->ebx), "=c" (reg->ecx), "=d" (reg->edx) : "a" (op) : "cc");
 #endif
 }
 
 /*
-tat* vendor should have at least CPUID_VENDOR_STRING_LEN characters
+ * vendor should have at least CPUID_VENDOR_STRING_LEN characters
  */
-int get_vendor_string(cpuid_t cpuid, char vendor[])
+void get_vendor_string(cpuid_t cpuid, char vendor[])
 {
     int i;
     le_reg_t treg;
@@ -60,5 +63,4 @@ int get_vendor_string(cpuid_t cpuid, char vendor[])
             vendor[i+8] = treg.ccnt[i];
     }
     vendor[12] = '\0';
-    return 0;
 }

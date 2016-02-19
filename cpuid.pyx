@@ -12,7 +12,7 @@ cdef extern from "_cpuid.h":
         uint32_t ecx
         uint32_t edx
     void read_cpuid(uint32_t eax, cpuid_t* res)
-    int get_vendor_string(cpuid_t, char vendor[])
+    void get_vendor_string(cpuid_t, char vendor[])
 
 
 def get_cpuid(uint32_t op):
