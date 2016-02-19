@@ -3,7 +3,7 @@ from distutils.extension import Extension
 from Cython.Distutils import build_ext
 
 ext_modules = [Extension("cpuid",
-                         ["cpuid.pyx", "_cpuid.c", "_supports_avx.c"])]
+                         ["cpuid.pyx", "_cpuid.c", "_os_restores_ymm.c"])]
 
 setup(
   name = 'cpuid',

@@ -1,21 +1,40 @@
 #include <stdint.h>
 #if !defined(_MSC_VER)
 /*
- * We're askig whether the OS supports AVX.
+ * We're asking whether the OS supports AVX.
  *
- * We get the answer by seeing if the OS keeps the 64 bit registers clean.
- * If we're on gcc / clang, we can depend on the xgetbv x86 instruction to
- * tell us whether this is so - see:
+ * Quoting from: https://en.wikipedia.org/wiki/Advanced_Vector_Extensions
+ * "AVX adds new register-state through the 256-bit wide YMM register file, so
+ * explicit operating system support is required to properly save and restore
+ * AVX's expanded registers between context switches."
+ *
+ * In order to save the registers:
+ * - the CPU needs to support XSAVE, XRESTOR, XSETBV, XGETBV instructions
+ *   (checked elsewhere with _cpuid(1) call, checking bit 26 of ECX);
+ * - the XSAVE instruction should be "enabled by OS" (cpuid(1), bit 27 of
+ *   ECX, checked elsewhere);
+ * - A check whether the expanded YMM registers are saved / restored on
+ *   context switch.
+ *
+ * The routines here check do this last check.
+ *
+ * If we can use assembly, we can use the XGETBV x86 instruction to tell us
+ * whether the registers are preserved on context switch:
  * https://software.intel.com/en-us/blogs/2011/04/14/is-avx-enabled/
  *
  * On MSVC we have a problem, because the MSVC 2010 SP1 is the first version
- * of MSVC to have a compiler intrinsic for xgetbv, and MSVC does not support
+ * of MSVC to have a compiler intrinsic for XGETBV, and MSVC does not support
  * inline ``__asm`` in 64-bit:
  * http://forums.codeguru.com/showthread.php?551499-xgetbv
  * https://msdn.microsoft.com/en-us/library/hb5z4sxd.aspx
  *
- * When we can drop support for MSVC < 2010 SP1, then we can ifdef to use the
- * ``_xgetbv`` intrinsic:
+ * Therefore, for MSVC, we have to use the GetEnabledXStateFeatures function
+ * to check if the feature is enabled:
+ * https://msdn.microsoft.com/en-us/library/windows/desktop/hh134235(v=vs.85).aspx
+ * https://msdn.microsoft.com/en-us/library/windows/desktop/hh134240(v=vs.85).aspx
+ *
+ * When we can drop support for MSVC < 2010 SP1, then we can use the
+ * ``_XGETBV`` intrinsic instead of this workaround:
  * https://msdn.microsoft.com/en-us/library/hh977023.aspx
  */
 
@@ -31,7 +50,7 @@ void _xgetbv(uint32_t op, uint32_t* eax_var, uint32_t* edx_var)
         (".byte 0x0f, 0x01, 0xd0": "=a" (*eax_var), "=d" (*edx_var) : "c" (op) : "cc");
 }
 
-int os_supports_avx(void)
+int os_restores_ymm(void)
 {
     uint32_t eax_val, edx_val;
     // XFEATURE_ENABLED_MASK/XCR0 register number = 0
@@ -42,13 +61,13 @@ int os_supports_avx(void)
 
 #else
 /*
+ * This is the workaround where we cannot use the XGETBV instruction for the
+ * check.
+ *
  * Much of this code fragment copied from:
  * https://msdn.microsoft.com/en-us/library/windows/desktop/hh134240(v=vs.85).aspx
- * I assume that this code is public domain given its apparent intended
+ * I (MB) assume this code is public domain given its apparent intended
  * purpose as an exmaple of code usage.
- *
- * The test for AVX here is also described in:
- * https://msdn.microsoft.com/en-us/library/windows/desktop/ff919571(v=vs.85).aspx
 */
 #include <stdlib.h>
 #include <stdio.h>
@@ -58,9 +77,9 @@ int os_supports_avx(void)
 
 // Windows 7 SP1 is the first version of Windows to support the AVX API.
 
-// Since the AVX API is not declared in the Windows 7 SDK headers and 
-// since we don't have the proper libs to work with, we will declare 
-// the API as function pointers and get them with GetProcAddress calls 
+// Since the AVX API is not declared in the Windows 7 SDK headers and
+// since we don't have the proper libs to work with, we will declare
+// the API as function pointers and get them with GetProcAddress calls
 // from kernel32.dll.  We also need to set some #defines.
 
 #define XSTATE_AVX                          (XSTATE_GSSE)
@@ -81,7 +100,7 @@ LOCATEXSTATEFEATURE pfnLocateXStateFeature = NULL;
 typedef BOOL (WINAPI *SETXSTATEFEATURESMASK)(PCONTEXT Context, DWORD64 FeatureMask);
 SETXSTATEFEATURESMASK pfnSetXStateFeaturesMask = NULL;
 
-int _os_supports_avx(void)
+int xstate_has_avx(void)
 {
     DWORD64 FeatureMask;
 
@@ -124,8 +143,8 @@ int _os_supports_avx(void)
 }
 
 
-int os_supports_avx(void)
+int os_restores_ymm(void)
 {
-    return _os_supports_avx() > 0;
+    return xstate_has_avx() > 0;
 }
 #endif

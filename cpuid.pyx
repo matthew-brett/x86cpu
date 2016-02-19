@@ -15,7 +15,7 @@ cdef extern from "_cpuid.h":
         uint32_t edx
     void read_cpuid(uint32_t eax, cpuid_t* res)
     void get_vendor_string(cpuid_t, char vendor[])
-    int os_supports_avx()
+    int os_restores_ymm()
 
 
 cpdef cpuid_t get_cpuid(uint32_t op):
@@ -40,11 +40,19 @@ def _all_set(val, bits):
     return True
 
 
-def supports_axx():
+def supports_avx():
     """ Return True if CPU and OS support AVX instructions
+
+    The cpuid(1) ECX register tells us if the CPU supports AVX.
+
+    For the OS to support AVX, it needs to preserve the AVX YMM registers when
+    doing a context switch.  In order to do this, the needs to support the
+    relevant instructions, and the OS needs to know to preserve these
+    registers.
 
     See:
     * https://en.wikipedia.org/wiki/CPUID
+    * https://en.wikipedia.org/wiki/Advanced_Vector_Extensions
     * https://software.intel.com/en-us/blogs/2011/04/14/is-avx-enabled/
 
     Returns
@@ -52,13 +60,16 @@ def supports_axx():
     avx_ok : bool
         True if CPU and OS support AVX
     """
-    reg1 = get_cpuid(1)
+    return bool(_supports_avx(get_cpuid(1)))
+
+
+cdef int _supports_avx(cpuid_t reg1):
     if not _all_set(reg1.ecx, [26, 27, 28]):
         return False
-    return bool(os_supports_avx())
+    return os_restores_ymm()
 
 
-def _bitmask(a, b, c):
+cdef int _bitmask(uint32_t a, uint32_t b, uint32_t c):
     return (a >> b) & c
 
 
