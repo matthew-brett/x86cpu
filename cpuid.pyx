@@ -53,7 +53,7 @@ def supports_axx():
         True if CPU and OS support AVX
     """
     reg1 = get_cpuid(1)
-    if not _all_set(reg1.edx, [26, 27, 28]):
+    if not _all_set(reg1.ecx, [26, 27, 28]):
         return False
     return bool(os_supports_avx())
 
