@@ -24,16 +24,16 @@ union _le_reg {
 typedef union _le_reg le_reg_t ;
 
 
-inline void read_cpuid(uint32_t op, cpuid_t reg){
+inline void read_cpuid(uint32_t op, cpuid_t* reg){
 #if defined(__i386__) && defined(__PIC__)
   __asm__ __volatile__
     ("mov %%ebx, %%edi;"
      "cpuid;"
      "xchgl %%ebx, %%edi;"
-     : "=a" (reg.eax), "=D" (reg.ebx), "=c" (reg.ecx), "=d" (reg.edx) : "a" (op) : "cc");
+     : "=a" (reg->eax), "=D" (reg->ebx), "=c" (reg->ecx), "=d" (reg->edx) : "a" (op) : "cc");
 #else
   __asm__ __volatile__
-    ("cpuid": "=a" (reg.eax), "=b" (reg.ebx), "=c" (reg.ecx), "=d" (reg.edx) : "a" (op) : "cc");
+    ("cpuid": "=a" (reg->eax), "=b" (reg->ebx), "=c" (reg->ecx), "=d" (reg->edx) : "a" (op) : "cc");
 #endif
 }
 

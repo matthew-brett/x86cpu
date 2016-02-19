@@ -15,7 +15,7 @@ typedef struct {
 
 #define CPUID_VENDOR_STRING_LEN  12
 
-void read_cpuid(uint32_t eax, cpuid_t res);
+void read_cpuid(uint32_t eax, cpuid_t* res);
 int get_vendor_string(cpuid_t, char []);
 
 #endif
