@@ -1,5 +1,7 @@
 *.pyc
 cpuid.c
 *.so
+*.pyd
 *.o
+*.obj
 build/

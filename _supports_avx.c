@@ -76,17 +76,9 @@ LOCATEXSTATEFEATURE pfnLocateXStateFeature = NULL;
 typedef BOOL (WINAPI *SETXSTATEFEATURESMASK)(PCONTEXT Context, DWORD64 FeatureMask);
 SETXSTATEFEATURESMASK pfnSetXStateFeaturesMask = NULL;
 
-int _os_supports_avx(void):
+int _os_supports_avx(void)
 {
-    PVOID Buffer;
-    PCONTEXT Context;
-    DWORD ContextSize;
     DWORD64 FeatureMask;
-    DWORD FeatureLength;
-    ULONG Index;
-    BOOL Success;
-    PM128A Xmm;
-    PM128A Ymm;
 
     // If this function was called before and we were not running on
     // at least Windws 7 SP1, then bail.
@@ -102,7 +94,7 @@ int _os_supports_avx(void):
         if (hm == NULL)
         {
             pfnGetEnabledXStateFeatures = (PGETENABLEDXSTATEFEATURES)-1;
-            return -2
+            return -2;
         }
 
         pfnGetEnabledXStateFeatures = (PGETENABLEDXSTATEFEATURES)GetProcAddress(hm, "GetEnabledXStateFeatures");
@@ -118,17 +110,17 @@ int _os_supports_avx(void):
             || pfnSetXStateFeaturesMask == NULL)
         {
             pfnGetEnabledXStateFeatures = (PGETENABLEDXSTATEFEATURES)-1;
-            return -3
+            return -3;
         }
     }
 
     FeatureMask = pfnGetEnabledXStateFeatures();
-    return ((FeatureMask & XSTATE_MASK_AVX) != 0)
+    return ((FeatureMask & XSTATE_MASK_AVX) != 0);
 }
 
 
 int os_supports_avx(void)
 {
-    return _os_supports_avx() > 0
+    return _os_supports_avx() > 0;
 }
 #endif
