@@ -4,7 +4,7 @@ test : ext
 	py.test .
 
 ext :
-	python setup.py build_ext -i
+	pip install -e .
 
 clean :
 	rm -rf x86cpu\*.o x86cpu\*.so x86cpu\cpuinfo.c
