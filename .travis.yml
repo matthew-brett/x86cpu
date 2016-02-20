@@ -46,13 +46,9 @@ install:
           # Check install from sdist works without Cython
           cd dist
           pip uninstall -y cython
-          tar xf ./*.tar.gz
-          rm ./*/tar.gz
-          cd x86cpu*/
-          ls -al
-          cat pyx-stamps
-          python setup.py install
-          cd ../..
+          tar tf ./*.tar.gz
+          pip install ./*.tar.gz
+          cd ..
       elif [ "$INSTALL_TYPE" == "wheel" ]; then
           pip install wheel
           python setup.py bdist_wheel
