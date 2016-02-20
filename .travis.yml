@@ -1,9 +1,5 @@
 language: python
 
-os:
-  - linux
-  - osx
-
 cache:
   directories:
     - $HOME/.cache/pip
@@ -44,7 +40,7 @@ install:
           pip install dist/*.tar.gz
       elif [ "$INSTALL_TYPE" == "wheel" ]; then
           pip install wheel
-          python setup_egg.py bdist_wheel
+          python setup.py bdist_wheel
           pip install dist/*.whl
       fi
 

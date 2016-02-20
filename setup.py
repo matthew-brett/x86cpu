@@ -1,12 +1,22 @@
 import platform
 
-if platform.machine() not in ('i386', 'i686', 'x86_64', 'x86', 'AMD64', 'AMD32'):
+if platform.machine() not in ( 'i386', 'i686', 'x86_64', 'x86',
+                              'AMD64', 'AMD32'):
     raise RuntimeError('x86cpu only builds on x86 CPUs')
 
 from os.path import join as pjoin
+import sys
+
+# For some commands, always use setuptools.
+if len(set(('develop', 'bdist_egg', 'bdist_rpm', 'bdist', 'bdist_dumb',
+            'install_egg_info', 'egg_info', 'easy_install', 'bdist_wheel',
+            'bdist_mpkg')).intersection(sys.argv)) > 0:
+    import setuptools
+
 from distutils.core import setup
 from distutils.extension import Extension
 from Cython.Distutils import build_ext
+
 import versioneer
 ext_modules = [Extension("x86cpu.cpuinfo",
                          [pjoin(*parts) for parts in (
