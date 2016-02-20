@@ -1,4 +1,3 @@
-#include <stdint.h>
 #if !defined(_MSC_VER)
 /*
  * We're asking whether the OS supports AVX.
@@ -37,6 +36,8 @@
  * ``_XGETBV`` intrinsic instead of this workaround:
  * https://msdn.microsoft.com/en-us/library/hh977023.aspx
  */
+
+#include <stdint.h>
 
 void _xgetbv(uint32_t op, uint32_t* eax_var, uint32_t* edx_var)
 {

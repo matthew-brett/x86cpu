@@ -5,9 +5,8 @@ Read CPU information using CPUID instruction.
 
 from collections import namedtuple
 
-from libc.stdint cimport uint32_t
-
 cdef extern from "cpuid.h":
+    ctypedef unsigned int uint32_t
     ctypedef struct e_registers_t:
         uint32_t eax
         uint32_t ebx

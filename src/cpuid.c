@@ -4,7 +4,6 @@
  *  - test for OS support (tricky)
  */
 
-#include <stdint.h>
 #include <string.h>
 
 #include "cpuid.h"

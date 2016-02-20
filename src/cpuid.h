@@ -1,7 +1,11 @@
 #ifndef __CPUID_H
 #define __CPUID_H
 
-#include <stdint.h>
+#ifdef _MSC_VER
+   typedef unsigned __int32 uint32_t
+#else
+   #include <stdint.h>
+#endif
 
 /*
  * struct reprensenting the cpuid flags as put in the register
