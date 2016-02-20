@@ -11,7 +11,7 @@ from helpers import get_sysctl_cpu, get_proc_cpuinfo, get_wmic_cpu
 
 pytestmark = pytest.mark.skipif(
     PLATFORM not in ('darwin', 'win32') and
-    not PLATFORM.startwith('linux'),
+    not PLATFORM.startswith('linux'),
     reason='Valid platforms are OSX, Windows, Linux')
 
 REF_INFO = {}
@@ -29,7 +29,7 @@ def setup_module():
                            PLATFORM)
 
 
-def test_against_cpuinfo():
+def test_against_ref():
     assert info.vendor == REF_INFO['vendor'].encode('latin1')
     for attr_name in ('extended_family', 'extended_model', 'stepping',
                       'model_display', 'family_display'):
