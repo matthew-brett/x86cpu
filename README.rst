@@ -11,11 +11,13 @@ instructions.
 Quickstart
 **********
 
->>> from x86cpu import info
+>>> from x86cpu import info, cpuid
 >>> print(info.model_display, info.family_display)
 (69, 6)
 >>> print(info.vendor)
 GenuineIntel
+>>> cpuid(1)
+{'eax': 263761L, 'ebx': 17827840L, 'ecx': 2147154879L, 'edx': 3219913727L}
 
 ****
 Code
