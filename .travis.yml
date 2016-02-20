@@ -44,8 +44,11 @@ install:
           python setup.py egg_info  # check egg_info while we're here
           python setup.py sdist
           # Check install from sdist works without Cython
+          cd dist
           pip uninstall -y cython
-          pip install dist/*.tar.gz
+          tar tf ./*.tar.gz
+          pip install ./*.tar.gz
+          cd ..
       elif [ "$INSTALL_TYPE" == "wheel" ]; then
           pip install wheel
           python setup.py bdist_wheel

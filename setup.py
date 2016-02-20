@@ -4,10 +4,14 @@ if platform.machine() not in ( 'i386', 'i686', 'x86_64', 'x86',
                               'AMD64', 'AMD32'):
     raise RuntimeError('x86cpu only builds on x86 CPUs')
 
-from os.path import join as pjoin
+import os
+from os.path import join as pjoin, exists
+
+# BEFORE importing distutils, remove MANIFEST. distutils doesn't properly
+# update it when the contents of directories change.
+if exists('MANIFEST'): os.remove('MANIFEST')
 
 import setuptools
-
 from distutils.core import setup
 from distutils.extension import Extension
 
