@@ -1,6 +1,6 @@
 import platform
 
-if platform.processor() not in ('i386', 'x86_64'):
+if platform.machine() not in ('i386', 'i686', 'x86_64', 'x86', 'AMD64', 'AMD32'):
     raise RuntimeError('x86cpu only builds on x86 CPUs')
 
 from os.path import join as pjoin
