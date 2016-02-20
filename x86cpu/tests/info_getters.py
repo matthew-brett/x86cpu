@@ -29,10 +29,13 @@ def get_sysctl_cpu():
     return info
 
 
-PCPUINFO_KEY_TRANSLATIONS = dict(
-    vendor_id='vendor',
-    model='model_display',
-    family='family_display')
+PCPUINFO_KEY_TRANSLATIONS = {
+    'vendor_id': 'vendor',
+    'model': 'model_display',
+    'family': 'family_display',
+    'model name': 'brand',
+}
+
 
 
 def get_proc_cpuinfo():
@@ -61,6 +64,11 @@ WMIC_KEY_TRANSLATIONS = dict(
 
 
 def get_wmic_cpu():
+    """ Get CPU parameters using ``wmic`` Windows utility
+
+    For a description of each CPU field, see:
+    https://msdn.microsoft.com/en-us/library/aa394373(v=vs.85).aspx
+    """
     wmic_text = check_output(
         ['wmic', 'cpu', 'get', '/all', '/format:textvaluelist']
     ).decode('latin1')

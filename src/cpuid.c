@@ -47,6 +47,29 @@ void read_vendor_string(e_registers_t cpuid_1, char* vendor)
     vendor[12] = '\0';
 }
 
+void read_brand_string(char* brand)
+{
+    /*
+     * https://en.wikipedia.org/wiki/CPUID#EAX.3D80000002h.2C80000003h.2C80000004h:_Processor_Brand_String
+     */
+    uint32_t* char_as_int=(uint32_t*)brand;
+    int op;
+    e_registers_t registers;
+    read_cpuid(0x80000000, &registers);
+    if (registers.eax < 0x80000004)
+    {
+        brand[0] = '\0';
+    }
+    for (op = 0x80000002; op < 0x80000005; op++)
+    {
+        read_cpuid(op, &registers);
+        *(char_as_int++) = registers.eax;
+        *(char_as_int++) = registers.ebx;
+        *(char_as_int++) = registers.ecx;
+        *(char_as_int++) = registers.edx;
+    }
+}
+
 void read_classifiers(e_registers_t cpuid_1, cpu_classifiers_t* cpu_params)
 {
     /*

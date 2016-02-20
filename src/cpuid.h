@@ -31,6 +31,7 @@ typedef struct {
 } cpu_classifiers_t;
 
 void read_cpuid(uint32_t eax, e_registers_t* res);
+void read_brand_string(char []);
 void read_vendor_string(e_registers_t, char[]);
 void read_classifiers(e_registers_t, cpu_classifiers_t*);
 int os_restores_ymm(void);

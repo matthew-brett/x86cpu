@@ -20,6 +20,7 @@ cdef extern from "cpuid.h":
         int extended_model
         int extended_family
     void read_cpuid(uint32_t eax, e_registers_t* res)
+    void read_brand_string(char [])
     void read_vendor_string(e_registers_t, char[])
     void read_classifiers(e_registers_t, cpu_classifiers_t*)
     int os_supports_avx(e_registers_t cpuid_1)
@@ -34,7 +35,7 @@ def _bit_mask(a, b):
 cdef class X86Info:
     cdef:
         readonly e_registers_t reg0, reg1
-        readonly char vendor[32]
+        readonly char vendor[32], brand[64]
         readonly int stepping, model, family, processor_type
         readonly int extended_model, extended_family
         readonly int model_display, family_display
@@ -45,6 +46,7 @@ cdef class X86Info:
         read_cpuid(0, &self.reg0)
         read_cpuid(1, &self.reg1)
         read_vendor_string(self.reg0, self.vendor)
+        read_brand_string(self.brand)
         read_classifiers(self.reg1, &cpu_classifiers)
         self.stepping = cpu_classifiers.stepping
         self.model = cpu_classifiers.model
