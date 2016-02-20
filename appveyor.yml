@@ -7,6 +7,12 @@ os: Visual Studio 2015
 
 environment:
 
+    global:
+      WHEELHOUSE_UPLOADER_USERNAME: matthew.brett
+      WHEELHOUSE_UPLOADER_SECRET:
+        secure:
+            wSarKWZqmNbc3fTkBlUtt1h4zPxjqy4/Brv0df/guuOsce47ojjISbFph1LMPT0b
+
     matrix:
 
     - PYTHON: "C:\\Python27"
@@ -44,6 +50,8 @@ install:
   - python -c "import struct; print(struct.calcsize('P') * 8)"
 
   - python -m pip install --upgrade pip
+  # Pin wheel to 0.26 to avoid Windows ABI tag for built wheel
+  - pip install wheel==0.26
   - pip install cython pytest
 
 build_script:
@@ -61,3 +69,10 @@ test_script:
 artifacts:
   # Archive the generated packages in the ci.appveyor.com build report.
   - path: dist\*
+
+on_success:
+  # Upload the generated wheel package to Rackspace
+  # On Windows, Apache Libcloud cannot find a standard CA cert bundle so we
+  # disable the ssl checks.
+  - pip install wheelhouse-uploader
+  - python -m wheelhouse_uploader upload --no-ssl-check --local-folder=dist win-dev-wheels
