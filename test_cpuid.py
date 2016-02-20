@@ -16,8 +16,8 @@ def test_against_cpuinfo():
         assert getattr(info, attr_name) == CPU_INFO[attr_name]
     # See:
     # http://www.intel.com/content/www/us/en/architecture-and-technology/64-ia-32-architectures-software-developer-vol-2a-manual.html
-    assert CPU_INFO['model'] == info.model + (info.extended_model << 4)
-    assert CPU_INFO['family'] == info.family + (info.extended_family << 4)
+    assert CPU_INFO['model'] == info.model_display
+    assert CPU_INFO['family'] == info.family_display
 
 
 def test_smoke():

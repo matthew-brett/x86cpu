@@ -46,6 +46,12 @@ cdef class X86Info:
         self.processor_type = cpu_classifiers.processor_type
         self.extended_model = cpu_classifiers.extended_model
         self.extended_family = cpu_classifiers.extended_family
+        # Implement algorithm in
+        # http://www.intel.com/content/www/us/en/architecture-and-technology/64-ia-32-architectures-software-developer-vol-2a-manual.html
+        self.model_display = (self.model if self.family not in (6, 15) else
+                              (self.extended_model << 4) + self.model)
+        self.family_display = (self.family if self.family != 15 else
+                               (self.extended_family << 4) + self.family)
 
     property supports_avx:
         def __get__(self):
