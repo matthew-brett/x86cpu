@@ -78,3 +78,11 @@ cdef class X86Info:
 
 
 info = X86Info()
+
+
+cpdef e_registers_t cpuid(uint32_t op):
+    """  Call cpuid instruction with EAX=`op`, return register values
+    """
+    cdef e_registers_t registers
+    read_cpuid(op, &registers)
+    return registers

@@ -5,7 +5,7 @@ from sys import platform as PLATFORM, path
 from os.path import dirname
 path.append(dirname(__file__))
 
-from x86cpu import info
+from x86cpu import info, cpuid
 
 import pytest
 
@@ -41,5 +41,11 @@ def test_against_ref():
 
 def test_smoke():
     avx = info.supports_avx
-    cpuid_0 = info.reg0
-    cpuid_1 = info.reg1
+
+    def cmp_reg(a, b):
+        # ebx appears to be incompletely defined for cpuid(1) call
+        for regname in ('eax', 'ecx', 'edx'):
+            assert a[regname] == b[regname]
+
+    cmp_reg(info.reg0, cpuid(0))
+    cmp_reg(info.reg1, cpuid(1))
