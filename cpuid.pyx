@@ -32,6 +32,7 @@ cdef class X86Info:
         readonly char vendor[32]
         readonly int stepping, model, family, processor_type
         readonly int extended_model, extended_family
+        readonly int model_display, family_display
 
     def __cinit__(self):
         cdef:
