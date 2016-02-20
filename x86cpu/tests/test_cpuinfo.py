@@ -6,6 +6,7 @@ from os.path import dirname
 path.append(dirname(__file__))
 
 from x86cpu import info, cpuid
+from x86cpu.cpuinfo import _bit_mask
 
 import pytest
 
@@ -37,6 +38,21 @@ def test_against_ref():
                       'model_display', 'family_display'):
         if attr_name in REF_INFO:
             assert getattr(info, attr_name) == REF_INFO[attr_name]
+
+
+def set_bits(bits):
+    val = 0
+    for bit in bits:
+        val += 2**bit
+    return val
+
+
+def test_bitmask():
+    for bit1 in range(32):
+        for bit2 in range(bit1 + 1, 32):
+            # Test bit1 through bit2 (inclusive)
+            bits = range(bit1, bit2 + 1)
+            assert _bit_mask(bit1, bit2) == set_bits(bits)
 
 
 def test_smoke():

@@ -23,6 +23,12 @@ cdef extern from "cpuid.h":
     void read_vendor_string(e_registers_t, char[])
     void read_classifiers(e_registers_t, cpu_classifiers_t*)
     int os_supports_avx(e_registers_t cpuid_1)
+    uint32_t BIT_MASK(uint32_t, uint32_t)
+
+
+def _bit_mask(a, b):
+    # Instantiate macro in order to test in Python
+    return BIT_MASK(a, b)
 
 
 cdef class X86Info:

@@ -11,13 +11,6 @@
 /* shift a by b bits to the right, then mask with c */
 #define SHIFT_MASK(a, b, c) ((((a) >> (b)) & (c)))
 
-/* Set bit a through bit b (inclusive), as long as 0 <= a <= 31 and 0 <= b <= 31.
- * From
- * http://stackoverflow.com/questions/8774567/c-macro-to-create-a-bit-mask-possible-and-have-i-found-a-gcc-bug
- */
-#define BIT_MASK(a, b) (((unsigned) -1 >> (31 - (b))) & ~((1U << (a)) - 1))
-
-
 void read_cpuid(uint32_t op, e_registers_t* reg)
 {
 #if defined(_MSC_VER)
