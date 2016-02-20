@@ -55,27 +55,28 @@ def get_proc_cpuinfo():
 
 
 WMIC_KEY_TRANSLATIONS = dict(
-    otherfamilydescription='vendor',
+    manufacturer='vendor',
     model='model_display',
-    family='family_display')
+    level='family_display')
 
 
 def get_wmic_cpu():
     wmic_text = check_output(
-        ['wmic', 'cpu', 'get', '/all /format:csv']).decode('latin1')
-    lines = [line.strip() for line in wmic_text.splitlines()]
-    keys = lines[0].split(',')
-    # Second line is blank
-    assert len(lines[1].strip()) == 0
-    values = lines[2].split(',')
-    assert len(keys) == len(values)
+        ['wmic', 'cpu', 'get', '/all', '/format:textvaluelist']
+    ).decode('latin1')
     info = {}
-    for key, value in zip(keys, values):
+    for line in wmic_text.splitlines():
+        line = line.strip()
+        if line == '':
+            continue
+        key, value = line.split('=', 1)
         key = key.lower()
         key = WMIC_KEY_TRANSLATIONS.get(key, key)
         try:
             value = int(value)
         except ValueError:
             pass
+        if key in info:  # Now we're looking at another processor
+            break
         info[key] = value
     return info
