@@ -79,4 +79,7 @@ def get_wmic_cpu():
         if key in info:  # Now we're looking at another processor
             break
         info[key] = value
+    # Stepping sometines the empty string in wmic output
+    if 'stepping' in info and info['stepping'] == '':
+        info['stepping'] = 0
     return info
