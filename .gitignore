@@ -5,3 +5,4 @@ cpuid.c
 *.o
 *.obj
 build/
+.cache/
