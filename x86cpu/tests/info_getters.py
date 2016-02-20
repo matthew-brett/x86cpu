@@ -60,7 +60,8 @@ def get_proc_cpuinfo():
 WMIC_KEY_TRANSLATIONS = dict(
     manufacturer='vendor',
     model='model_display',
-    level='family_display')
+    level='family_display',
+    name='brand')
 
 
 def get_wmic_cpu():
