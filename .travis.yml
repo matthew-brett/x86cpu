@@ -10,12 +10,26 @@ env:
         - INSTALL_TYPE="setup"
         - MANYLINUX_URL=https://nipy.bic.berkeley.edu/manylinux
 
+python:
+    - 2.6
+    - 3.2
+    - 3.3
+    - 3.4
+    - 3.5
+
 matrix:
   include:
     - python: 2.7
       env:
         - INSTALL_TYPE=sdist
-
+    - python: 2.7
+      env:
+        - INSTALL_TYPE=wheel
+    - python: 2.7
+      # Check minimum dependency
+      env:
+        # Check CYTHON_MIN_VERSION in setup.py
+        - DEPENDS=cython==0.18
 before_install:
     - virtualenv venv
     - source venv/bin/activate
