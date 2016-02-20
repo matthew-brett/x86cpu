@@ -1,0 +1,45 @@
+language: python
+
+env:
+    global:
+        - INSTALL_TYPE="setup"
+
+python:
+    - 2.6
+    - 3.2
+    - 3.3
+    - 3.4
+    - 3.5
+
+matrix:
+  include:
+    - python: 2.7
+      env:
+        - INSTALL_TYPE=sdist
+    - python: 2.7
+      env:
+        - INSTALL_TYPE=wheel
+before_install:
+    - virtualenv venv
+    - source venv/bin/activate
+    - pip install pytest
+
+install:
+    - |
+      if [ "$INSTALL_TYPE" == "setup" ]; then
+          python setup.py install
+      elif [ "$INSTALL_TYPE" == "sdist" ]; then
+          python setup_egg.py egg_info  # check egg_info while we're here
+          python setup_egg.py sdist
+          pip install dist/*.tar.gz
+      elif [ "$INSTALL_TYPE" == "wheel" ]; then
+          pip install wheel
+          python setup_egg.py bdist_wheel
+          pip install dist/*.whl
+      fi
+
+script:
+    # Change into an innocuous directory and find tests from installation
+    - mkdir for_testing
+    - cd for_testing
+    - py.test ../x86cpu
