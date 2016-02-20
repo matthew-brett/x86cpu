@@ -7,7 +7,7 @@
 #include <stdint.h>
 #include <string.h>
 
-#include "_cpuid.h"
+#include "cpuid.h"
 
 /* shift a by b bits to the right, then mask with c */
 #define SHIFT_MASK(a, b, c) ((((a) >> (b)) & (c)))

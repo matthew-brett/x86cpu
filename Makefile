@@ -7,4 +7,4 @@ ext :
 	python setup.py build_ext -i
 
 clean :
-	rm -rf *.o *.so
+	rm -rf x86cpu\*.o x86cpu\*.so x86cpu\cpuinfo.c

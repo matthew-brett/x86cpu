@@ -1,5 +1,5 @@
 *.pyc
-cpuid.c
+x86cpu/cpuinfo.c
 *.so
 *.pyd
 *.o

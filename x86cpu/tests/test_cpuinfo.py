@@ -1,13 +1,15 @@
 """ Testing cpuid module
 """
 
-from sys import platform as PLATFORM
+from sys import platform as PLATFORM, path
+from os.path import dirname
+path.append(dirname(__file__))
 
-from cpuid import info
+from x86cpu import info
 
 import pytest
 
-from helpers import get_sysctl_cpu, get_proc_cpuinfo, get_wmic_cpu
+from info_getters import get_sysctl_cpu, get_proc_cpuinfo, get_wmic_cpu
 
 pytestmark = pytest.mark.skipif(
     PLATFORM not in ('darwin', 'win32') and

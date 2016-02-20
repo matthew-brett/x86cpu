@@ -7,7 +7,7 @@ from collections import namedtuple
 
 from libc.stdint cimport uint32_t
 
-cdef extern from "_cpuid.h":
+cdef extern from "cpuid.h":
     ctypedef struct e_registers_t:
         uint32_t eax
         uint32_t ebx
