@@ -1,5 +1,9 @@
 language: python
 
+os:
+  - linux
+  - osx
+
 env:
     global:
         - INSTALL_TYPE="setup"
@@ -22,7 +26,7 @@ matrix:
 before_install:
     - virtualenv venv
     - source venv/bin/activate
-    - pip install pytest
+    - pip install pytest cython
 
 install:
     - |
