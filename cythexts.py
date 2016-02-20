@@ -45,6 +45,7 @@ def stamped_pyx_ok(exts, hash_stamp_fname):
             try:
                 c_file = open(c_fname, 'rb')
             except IOError:
+                print('Oops cannot open', c_fname)
                 return False
             c_hash = sha1(c_file.read()).hexdigest()
             stamps[source_hash] = source
@@ -53,19 +54,24 @@ def stamped_pyx_ok(exts, hash_stamp_fname):
     try:
         stamp_file = open(hash_stamp_fname, 'rt')
     except IOError:
+        print('Oops cannot open hash file', hash_stamp_fname)
         return False
     for line in stamp_file:
         if line.startswith('#'):
             continue
         fname, hash = [e.strip() for e in line.split(',')]
         if not hash in stamps:
+            print('Oops hash not in stamps', fname, hash)
             return False
         # Compare path made canonical for \/
         fname = fname.replace(filesep, '/')
         if not stamps[hash].replace(filesep, '/') == fname:
+            print('Oops filename looks wrong', fname)
             return False
         stamps.pop(hash)
     # All good if we found all hashes we need
+    if len(stamps):
+        print('Oops still have stamps', stamps)
     return len(stamps) == 0
 
 

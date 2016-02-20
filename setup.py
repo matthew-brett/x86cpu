@@ -19,7 +19,7 @@ import versioneer
 cmdclass=versioneer.get_cmdclass()
 
 # Utilities to build from c or pyx files
-from cythexts import cyproc_exts, get_pyx_sdist
+from cythexts import cyproc_exts, get_pyx_sdist, stamped_pyx_ok
 # Check this version is tested in .travis.yml
 CYTHON_MIN_VERSION="0.18"
 
@@ -35,6 +35,8 @@ ext_modules = [Extension("x86cpu.cpuinfo",
 build_ext, need_cython = cyproc_exts(ext_modules,
                                      CYTHON_MIN_VERSION,
                                      'pyx-stamps')
+print('Cython?', need_cython)
+print('Hashes', stamped_pyx_ok(ext_modules, 'pyx-stamps'))
 cmdclass['build_ext'] = build_ext
 cmdclass['sdist'] = get_pyx_sdist(cmdclass['sdist'])
 
@@ -65,5 +67,5 @@ setup(
         'Operating System :: MacOS',
     ],
     long_description = open('README.rst', 'rt').read(),
-    setup_requires=['cython'] if need_cython else [],
+#   setup_requires=['cython'] if need_cython else [],
 )
