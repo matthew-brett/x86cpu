@@ -27,6 +27,7 @@ matrix:
 before_install:
     - virtualenv venv
     - source venv/bin/activate
+    - python -m pip install -U pip wheel
     - pip install -f $MANYLINUX_URL pytest cython
 
 install:
