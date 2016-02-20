@@ -56,10 +56,13 @@ def stamped_pyx_ok(exts, hash_stamp_fname):
     except IOError:
         print('Oops cannot open hash file', hash_stamp_fname)
         return False
-    for line in stamp_file:
+    lines = stamp_file.readlines()
+    print('Hash file\n', ''.join(lines))
+    for line in lines:
         if line.startswith('#'):
             continue
         fname, hash = [e.strip() for e in line.split(',')]
+        print('Fname, hash', fname, hash)
         if not hash in stamps:
             print('Oops hash not in stamps', fname, hash)
             return False
