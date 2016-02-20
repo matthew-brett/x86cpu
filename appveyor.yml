@@ -60,7 +60,10 @@ build_script:
   # http://stackoverflow.com/questions/32091593/cannot-install-windows-sdk-7-1-on-windows-10
   - echo "C:\Program Files\Microsoft SDKs\Windows\v7.1\Bin\SetEnv.cmd" /x64 > "C:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\amd64/vcvars64.bat"
   # Build and install
-  - pip install -e .
+  - python setup.py bdist_wheel
+  - cd dist
+  - pip install --pre --no-index -f . x86cpu
+  - cd ..
 
 test_script:
   # Run the project tests
@@ -71,6 +74,11 @@ artifacts:
   - path: dist\*
 
 on_success:
+  # Deploy only for tags:
+  # http://www.appveyor.com/docs/deployment#deploy-on-tag-github-only
+  # on:
+  #  branch: master
+  #  appveyor_repo_tag: true
   # Upload the generated wheel package to Rackspace
   # On Windows, Apache Libcloud cannot find a standard CA cert bundle so we
   # disable the ssl checks.
