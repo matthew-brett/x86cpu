@@ -11,10 +11,21 @@ typedef struct {
         uint32_t ebx;
         uint32_t ecx;
         uint32_t edx;
-} cpuid_t;
+} e_registers_t;
 
-void read_cpuid(uint32_t eax, cpuid_t* res);
-char* get_vendor_string(cpuid_t);
+typedef struct {
+    int stepping;
+    int model;
+    int family;
+    int processor_type;
+    int extended_model;
+    int extended_family;
+} cpu_classifiers_t;
+
+void read_cpuid(uint32_t eax, e_registers_t* res);
+void read_vendor_string(e_registers_t, char[]);
+void read_classifiers(e_registers_t, cpu_classifiers_t*);
 int os_restores_ymm(void);
+int os_supports_avx(e_registers_t cpuid_1);
 
 #endif

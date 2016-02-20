@@ -8,19 +8,29 @@ from collections import namedtuple
 from libc.stdint cimport uint32_t
 
 cdef extern from "_cpuid.h":
-    ctypedef struct cpuid_t:
+    ctypedef struct e_registers_t:
         uint32_t eax
         uint32_t ebx
         uint32_t ecx
         uint32_t edx
-    void read_cpuid(uint32_t eax, cpuid_t* res)
-    char* get_vendor_string(cpuid_t)
-    int os_restores_ymm()
+    ctypedef struct cpu_classifiers_t:
+        int stepping
+        int model
+        int family
+        int processor_type
+        int extended_model
+        int extended_family
+    void read_cpuid(uint32_t eax, e_registers_t* res)
+    void read_vendor_string(e_registers_t, char[])
+    void read_classifiers(e_registers_t, cpu_classifiers_t*)
+    int os_supports_avx(e_registers_t cpuid_1)
 
 
-cpdef cpuid_t get_cpuid(uint32_t op):
+cpdef e_registers_t get_cpuid(uint32_t op):
+    """ Return contents of extended registers after _cpuid call with EAX=`op`
+    """
     cdef:
-        cpuid_t reg
+        e_registers_t reg
     read_cpuid(op, &reg)
     return reg
 
@@ -28,14 +38,10 @@ cpdef cpuid_t get_cpuid(uint32_t op):
 def get_vendor():
     """ Return vendor string by querying cpuid
     """
-    return get_vendor_string(get_cpuid(0))
-
-
-def _all_set(val, bits):
-    for bit in bits:
-        if not ((1 << bit) & val):
-            return False
-    return True
+    cdef:
+        char vendor[12]
+    read_vendor_string(get_cpuid(0), vendor)
+    return vendor
 
 
 def supports_avx():
@@ -58,34 +64,13 @@ def supports_avx():
     avx_ok : bool
         True if CPU and OS support AVX
     """
-    return bool(_supports_avx(get_cpuid(1)))
-
-
-cdef int _supports_avx(cpuid_t reg1):
-    if not _all_set(reg1.ecx, [26, 27, 28]):
-        return False
-    return os_restores_ymm()
-
-
-cdef int _bitmask(uint32_t a, uint32_t b, uint32_t c):
-    return (a >> b) & c
-
-
-cpu_ids = namedtuple('cpu_ids',
-                     ['family', 'model', 'extended_family', 'extended_model',
-                      'stepping', 'processor_type'])
+    return bool(os_supports_avx(get_cpuid(1)))
 
 
 def get_classifiers():
     """ Return CPU family, model, extended model / family, stepping, type
     """
-    eax = get_cpuid(1).eax
-    ext_family = _bitmask(eax, 20, 0xff)
-    ext_model  = _bitmask(eax, 16, 0x0f)
-    ptype = _bitmask(eax, 12, 0x03)
-    family = _bitmask(eax, 8, 0x0f)
-    model = _bitmask(eax,  4, 0x0f)
-    stepping  = _bitmask(eax,  0, 0x0f)
-    return cpu_ids(family=family, model=model, extended_family=ext_family,
-                   extended_model=ext_model, stepping=stepping,
-                   processor_type=ptype)
+    cdef:
+        cpu_classifiers_t cpu_classifiers
+    read_classifiers(get_cpuid(1), &cpu_classifiers)
+    return cpu_classifiers

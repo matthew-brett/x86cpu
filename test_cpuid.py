@@ -17,4 +17,4 @@ def test_against_cpuinfo():
     classifiers = get_classifiers()
     for attr_name in ('model', 'family', 'extended_family', 'extended_model',
                       'stepping', 'processor_type'):
-        assert getattr(classifiers, attr_name) == CPU_INFO[attr_name]
+        assert classifiers[attr_name] == CPU_INFO[attr_name]
