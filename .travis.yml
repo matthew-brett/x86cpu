@@ -46,8 +46,7 @@ install:
           # Check install from sdist works without Cython
           cd dist
           pip uninstall -y cython
-          tar tf ./*.tar.gz
-          pip install ./*.tar.gz
+          pip install --pre --no-index -f . x86cpu
           cd ..
       elif [ "$INSTALL_TYPE" == "wheel" ]; then
           pip install wheel

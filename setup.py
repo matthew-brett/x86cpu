@@ -4,8 +4,9 @@ if platform.machine() not in ( 'i386', 'i686', 'x86_64', 'x86',
                               'AMD64', 'AMD32'):
     raise RuntimeError('x86cpu only builds on x86 CPUs')
 
+import sys
 import os
-from os.path import join as pjoin, exists
+from os.path import join as pjoin, exists, dirname
 
 # BEFORE importing distutils, remove MANIFEST. distutils doesn't properly
 # update it when the contents of directories change.
@@ -15,6 +16,12 @@ import setuptools
 from distutils.core import setup
 from distutils.extension import Extension
 
+# Try to preempt setuptools monkeypatching of Extension handling when Pyrex is
+# missing.  Otherwise the monkeypatched Extension will change .pyx filenames to
+# .c filenames, messing up our careful .pyx / .c file handling.
+sys.path.insert(0, pjoin(dirname(__file__), 'fake_pyrex'))
+
+# Get package version from git tags
 import versioneer
 cmdclass=versioneer.get_cmdclass()
 
