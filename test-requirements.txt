@@ -1,3 +1,2 @@
 # Requirements for running the tests
 pytest
-py-cpuinfo

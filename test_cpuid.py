@@ -1,23 +1,39 @@
 """ Testing cpuid module
 """
 
+from sys import platform as PLATFORM
+
 from cpuid import info
 
-from cpuinfo.cpuinfo import get_cpu_info
+import pytest
 
-CPU_INFO = get_cpu_info()
+from helpers import get_sysctl_cpu, get_proc_cpuinfo, get_wmic_cpu
 
+pytestmark = pytest.mark.skipif(
+    PLATFORM not in ('darwin', 'win32') and
+    not PLATFORM.startwith('linux'),
+    reason='Valid platforms are OSX, Windows, Linux')
+
+REF_INFO = {}
+
+def setup_module():
+    global REF_INFO
+    if PLATFORM == 'darwin':
+        REF_INFO.update(get_sysctl_cpu())
+    elif PLATFORM.startswith('linux'):
+        REF_INFO.update(get_proc_cpuinfo())
+    elif PLATFORM == 'win32':
+        REF_INFO.update(get_wmic_cpu())
+    else:
+        raise RuntimeError('Was not intending to test platform ' +
+                           PLATFORM)
 
 
 def test_against_cpuinfo():
-    assert info.vendor == CPU_INFO['vendor_id'].encode('latin1')
+    assert info.vendor == REF_INFO['vendor'].encode('latin1')
     for attr_name in ('extended_family', 'extended_model', 'stepping',
-                      'processor_type'):
-        assert getattr(info, attr_name) == CPU_INFO[attr_name]
-    # See:
-    # http://www.intel.com/content/www/us/en/architecture-and-technology/64-ia-32-architectures-software-developer-vol-2a-manual.html
-    assert CPU_INFO['model'] == info.model_display
-    assert CPU_INFO['family'] == info.family_display
+                      'model_display', 'family_display'):
+        assert getattr(info, attr_name) == REF_INFO[attr_name]
 
 
 def test_smoke():
