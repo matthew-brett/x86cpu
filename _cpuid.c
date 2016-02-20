@@ -66,6 +66,8 @@ void read_classifiers(e_registers_t cpuid_1, cpu_classifiers_t* cpu_params)
     * 27:20 – Extended Family
     * See:
     * https://en.wikipedia.org/wiki/CPUID#EAX.3D1:_Processor_Info_and_Feature_Bits
+    * Page 3-191 of
+    * http://www.intel.com/content/www/us/en/architecture-and-technology/64-ia-32-architectures-software-developer-vol-2a-manual.html
     */
     uint32_t eax = cpuid_1.eax;
     cpu_params->stepping = SHIFT_MASK(eax, 0, 0x0f);
