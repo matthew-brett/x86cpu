@@ -10,7 +10,7 @@ CPU_INFO = get_cpu_info()
 
 
 def test_against_cpuinfo():
-    assert info.vendor == CPU_INFO['vendor_id']
+    assert info.vendor == CPU_INFO['vendor_id'].encode('latin1')
     for attr_name in ('extended_family', 'extended_model', 'stepping',
                       'processor_type'):
         assert getattr(info, attr_name) == CPU_INFO[attr_name]
