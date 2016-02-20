@@ -3,6 +3,7 @@
 
 from subprocess import check_output
 
+
 SYSCTL_KEY_TRANSLATIONS = dict(
     model='model_display',
     family='family_display',
@@ -53,5 +54,28 @@ def get_proc_cpuinfo():
     return info
 
 
+WMIC_KEY_TRANSLATIONS = dict(
+    otherfamilydescription='vendor',
+    model='model_display',
+    family='family_display')
+
+
 def get_wmic_cpu():
-    pass
+    wmic_text = check_output(
+        ['wmic', 'cpu', 'get', '/all /format:csv']).decode('latin1')
+    lines = [line.strip() for line in wmic_text.splitlines()]
+    keys = lines[0].split(',')
+    # Second line is blank
+    assert len(lines[1].strip()) == 0
+    values = lines[2].split(',')
+    assert len(keys) == len(values)
+    info = {}
+    for key, value in zip(keys, values):
+        key = key.lower()
+        key = WMIC_KEY_TRANSLATIONS.get(key, key)
+        try:
+            value = int(value)
+        except ValueError:
+            pass
+        info[key] = value
+    return info

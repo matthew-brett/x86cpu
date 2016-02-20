@@ -33,7 +33,8 @@ def test_against_cpuinfo():
     assert info.vendor == REF_INFO['vendor'].encode('latin1')
     for attr_name in ('extended_family', 'extended_model', 'stepping',
                       'model_display', 'family_display'):
-        assert getattr(info, attr_name) == REF_INFO[attr_name]
+        if attr_name in REF_INFO:
+            assert getattr(info, attr_name) == REF_INFO[attr_name]
 
 
 def test_smoke():
