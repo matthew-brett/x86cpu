@@ -1,2 +1,4 @@
 include versioneer.py
 include x86cpu/_version.py
+include LICENSE
+include README.rst
