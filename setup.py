@@ -7,7 +7,7 @@ from os.path import join as pjoin
 from distutils.core import setup
 from distutils.extension import Extension
 from Cython.Distutils import build_ext
-
+import versioneer
 ext_modules = [Extension("x86cpu.cpuinfo",
                          [pjoin(*parts) for parts in (
                              ['x86cpu', 'cpuinfo.pyx'],
@@ -15,9 +15,13 @@ ext_modules = [Extension("x86cpu.cpuinfo",
                              ['src', 'os_restores_ymm.c'])],
                          include_dirs = ['src'])]
 
+cmdclass=versioneer.get_cmdclass()
+cmdclass['build_ext'] = build_ext
+
 setup(
+    version=versioneer.get_version(),
+    cmdclass=cmdclass,
     name = 'x86cpu',
-    cmdclass = {'build_ext': build_ext},
     ext_modules = ext_modules,
     packages     = ['x86cpu',
                     'x86cpu.tests']
