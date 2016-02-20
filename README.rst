@@ -1,6 +1,6 @@
-########################################
-Utility to collect informatio on x86 CPU
-########################################
+##############################
+Collect information on x86 CPU
+##############################
 
 Uses ``cpuid`` instruction to get information about CPU.
 
