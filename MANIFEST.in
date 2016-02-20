@@ -1,5 +1,8 @@
 include versioneer.py
 include x86cpu/_version.py
 include LICENSE
+include MANIFEST.in
 include README.rst
 recursive-include src *.c *.h
+# setup utilities
+include cythexts.py

@@ -6,6 +6,7 @@ cache:
 
 env:
     global:
+        - DEPENDS=cython
         - INSTALL_TYPE="setup"
         - MANYLINUX_URL=https://nipy.bic.berkeley.edu/manylinux
 
@@ -24,11 +25,16 @@ matrix:
     - python: 2.7
       env:
         - INSTALL_TYPE=wheel
+    - python: 2.7
+      # Check minimum dependency
+      env:
+        # Check CYTHON_MIN_VERSION in setup.py
+        - DEPENDS=cython==0.18
 before_install:
     - virtualenv venv
     - source venv/bin/activate
     - python -m pip install -U pip wheel
-    - pip install -f $MANYLINUX_URL pytest cython
+    - pip install -f $MANYLINUX_URL $DEPENDS
 
 install:
     - |
@@ -37,6 +43,8 @@ install:
       elif [ "$INSTALL_TYPE" == "sdist" ]; then
           python setup.py egg_info  # check egg_info while we're here
           python setup.py sdist
+          # Check install from sdist works without Cython
+          pip uninstall -y cython
           pip install dist/*.tar.gz
       elif [ "$INSTALL_TYPE" == "wheel" ]; then
           pip install wheel
@@ -45,6 +53,7 @@ install:
       fi
 
 script:
+    - pip install pytest
     # Change into an innocuous directory and find tests from installation
     - mkdir for_testing
     - cd for_testing

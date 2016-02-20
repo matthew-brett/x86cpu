@@ -5,19 +5,20 @@ if platform.machine() not in ( 'i386', 'i686', 'x86_64', 'x86',
     raise RuntimeError('x86cpu only builds on x86 CPUs')
 
 from os.path import join as pjoin
-import sys
 
-# For some commands, always use setuptools.
-if len(set(('develop', 'bdist_egg', 'bdist_rpm', 'bdist', 'bdist_dumb',
-            'install_egg_info', 'egg_info', 'easy_install', 'bdist_wheel',
-            'bdist_mpkg')).intersection(sys.argv)) > 0:
-    import setuptools
+import setuptools
 
 from distutils.core import setup
 from distutils.extension import Extension
-from Cython.Distutils import build_ext
 
 import versioneer
+cmdclass=versioneer.get_cmdclass()
+
+# Utilities to build from c or pyx files
+from cythexts import cyproc_exts, get_pyx_sdist
+# Check this version is tested in .travis.yml
+CYTHON_MIN_VERSION="0.18"
+
 ext_modules = [Extension("x86cpu.cpuinfo",
                          [pjoin(*parts) for parts in (
                              ['x86cpu', 'cpuinfo.pyx'],
@@ -25,8 +26,13 @@ ext_modules = [Extension("x86cpu.cpuinfo",
                              ['src', 'os_restores_ymm.c'])],
                          include_dirs = ['src'])]
 
-cmdclass=versioneer.get_cmdclass()
+# Cython is a dependency for building extensions, iff we don't have stamped up
+# pyx and c files.
+build_ext, need_cython = cyproc_exts(ext_modules,
+                                     CYTHON_MIN_VERSION,
+                                     'pyx-stamps')
 cmdclass['build_ext'] = build_ext
+cmdclass['sdist'] = get_pyx_sdist(cmdclass['sdist'])
 
 setup(
     version=versioneer.get_version(),
@@ -55,4 +61,5 @@ setup(
         'Operating System :: MacOS',
     ],
     long_description = open('README.rst', 'rt').read(),
+    setup_requires=['cython'] if need_cython else [],
 )
