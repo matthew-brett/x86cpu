@@ -3,8 +3,6 @@
 Read CPU information using CPUID instruction.
 """
 
-from collections import namedtuple
-
 cdef extern from "cpuid.h":
     ctypedef unsigned int uint32_t
     ctypedef struct e_registers_t:
