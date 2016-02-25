@@ -35,9 +35,15 @@ def setup_module():
 def test_against_ref():
     assert info.vendor == REF_INFO['vendor'].encode('latin1')
     for attr_name in ('extended_family', 'extended_model', 'stepping',
-                      'model_display', 'family_display'):
+                      'model_display', 'family_display', 'signature',
+                      'supports_avx'):
         if attr_name in REF_INFO:
             assert getattr(info, attr_name) == REF_INFO[attr_name]
+    for feature in ('sse', 'sse2', 'sse3', 'mmx', '3dnow'):
+        if feature in REF_INFO['unknown_flags']:
+            continue
+        has_feature = feature in REF_INFO['flags']
+        assert (getattr(info, 'has_' + feature) == has_feature)
 
 
 def set_bits(bits):

@@ -30,13 +30,18 @@ def _bit_mask(a, b):
     return BIT_MASK(a, b)
 
 
+def _has_bit(val, bit):
+    return bool(val & 1 << bit)
+
+
 cdef class X86Info:
     cdef:
         readonly e_registers_t reg0, reg1
         readonly char vendor[32], brand[64]
         readonly int stepping, model, family, processor_type
         readonly int extended_model, extended_family
-        readonly int model_display, family_display
+        readonly int model_display, family_display, signature
+        readonly int has_mmx, has_sse, has_sse2, has_sse3, has_3dnow
 
     def __cinit__(self):
         cdef:
@@ -58,6 +63,13 @@ cdef class X86Info:
                               (self.extended_model << 4) + self.model)
         self.family_display = (self.family if self.family != 15 else
                                (self.extended_family << 4) + self.family)
+        self.signature = self.reg1.eax
+        edx1, ecx1 = self.reg1.edx, self.reg1.ecx
+        self.has_mmx = _has_bit(edx1, 23)
+        self.has_sse = _has_bit(edx1, 25)
+        self.has_sse2 = _has_bit(edx1, 26)
+        self.has_3dnow = _has_bit(edx1, 26)
+        self.has_sse3 = _has_bit(ecx1, 0)
 
     property supports_avx:
         def __get__(self):
