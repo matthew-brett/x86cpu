@@ -17,7 +17,7 @@ cdef extern from "cpuid.h":
         int processor_type
         int extended_model
         int extended_family
-    void read_cpuid(uint32_t eax, e_registers_t* res)
+    void read_cpuid(uint32_t eax, uint32_t ecx, e_registers_t* res)
     void read_brand_string(char [])
     void read_vendor_string(e_registers_t, char[])
     void read_classifiers(e_registers_t, cpu_classifiers_t*)
@@ -36,18 +36,20 @@ def _has_bit(val, bit):
 
 cdef class X86Info:
     cdef:
-        readonly e_registers_t reg0, reg1
+        readonly e_registers_t reg0, reg1, reg7
         readonly char vendor[32], brand[64]
         readonly int stepping, model, family, processor_type
         readonly int extended_model, extended_family
         readonly int model_display, family_display, signature
         readonly int has_mmx, has_sse, has_sse2, has_sse3, has_3dnow, has_ssse3
+        readonly int has_sse4_1, has_sse4_2
 
     def __cinit__(self):
         cdef:
             cpu_classifiers_t cpu_classifiers
-        read_cpuid(0, &self.reg0)
-        read_cpuid(1, &self.reg1)
+        read_cpuid(0, 0, &self.reg0)
+        read_cpuid(1, 0, &self.reg1)
+        read_cpuid(7, 0, &self.reg7)
         read_vendor_string(self.reg0, self.vendor)
         read_brand_string(self.brand)
         read_classifiers(self.reg1, &cpu_classifiers)
@@ -71,6 +73,8 @@ cdef class X86Info:
         self.has_3dnow = _has_bit(edx1, 26)
         self.has_sse3 = _has_bit(ecx1, 0)
         self.has_ssse3 = _has_bit(ecx1, 9)
+        self.has_sse4_1 = _has_bit(ecx1, 19)
+        self.has_sse4_2 = _has_bit(ecx1, 20)
 
     property supports_avx:
         def __get__(self):
@@ -95,13 +99,19 @@ cdef class X86Info:
             """
             return bool(os_supports_avx(self.reg1))
 
+    property supports_avx2:
+        """ True if we have AVX support and CPUID reports AVX2 on CPU
+        """
+        def __get__(self):
+            return self.supports_avx and _has_bit(self.reg7.ebx, 5)
+
 
 info = X86Info()
 
 
-cpdef e_registers_t cpuid(uint32_t op):
-    """  Call cpuid instruction with EAX=`op`, return register values
+cpdef e_registers_t cpuid(uint32_t op, uint32_t sub_op=0):
+    """ Register values from cpuid instruction with EAX=`op`, ECX=`sub_op`
     """
     cdef e_registers_t registers
-    read_cpuid(op, &registers)
+    read_cpuid(op, sub_op, &registers)
     return registers

@@ -11,6 +11,12 @@ SYSCTL_KEY_TRANSLATIONS = dict(
     extfamily='extended_family')
 
 
+SYSCTL_FLAG_TRANSLATIONS = {
+    'sse4.1': 'sse4_1',
+    'sse4.2': 'sse4_2',
+}
+
+
 def get_sysctl_cpu():
     sysctl_text = check_output(['sysctl', '-a']).encode('utf8')
     info = {}
@@ -25,7 +31,9 @@ def get_sysctl_cpu():
         except ValueError:
             pass
         info[key] = value
-    info['flags'] = [flag.lower() for flag in info['features'].split()]
+    flags = [flag.lower() for flag in info['features'].split()]
+    info['flags'] = [SYSCTL_FLAG_TRANSLATIONS.get(flag, flag)
+                     for flag in flags]
     info['unknown_flags'] = ['3dnow']
     info['supports_avx'] = 'hw.optional.avx1_0: 1\n' in sysctl_text
     info['supports_avx2'] = 'hw.optional.avx2_0: 1\n' in sysctl_text
@@ -108,5 +116,5 @@ def get_wmic_cpu():
         'mmx': has_feature(3),
         '3dnow': has_feature(7),
     }
-    info['unknown_flags'] = ('ssse3',)
+    info['unknown_flags'] = ('ssse3', 'sse4_1', 'sse4_2')
     return info

@@ -11,11 +11,11 @@
 /* shift a by b bits to the right, then mask with c */
 #define SHIFT_MASK(a, b, c) ((((a) >> (b)) & (c)))
 
-void read_cpuid(uint32_t op, e_registers_t* reg)
+void read_cpuid(uint32_t op, uint32_t sub_op, e_registers_t* reg)
 {
 #if defined(_MSC_VER)
     int cpu_info[4] = {-1};
-    __cpuid(cpu_info, (int)op);
+    __cpuidex(cpu_info, (int)op, int(sub_op));
     reg->eax = cpu_info[0];
     reg->ebx = cpu_info[1];
     reg->ecx = cpu_info[2];
@@ -23,22 +23,26 @@ void read_cpuid(uint32_t op, e_registers_t* reg)
 #elif defined(__i386__) && defined(__PIC__)
     /* see:
      * https://software.intel.com/en-us/articles/how-to-detect-new-instruction-support-in-the-4th-generation-intel-core-processor-family
+     *
+     * Must preserve EBX register for PIC on 32-bit
      */
     __asm__ __volatile__
         ("mov %%ebx, %%edi;"
          "cpuid;"
          "xchgl %%ebx, %%edi;"
-         : "=a" (reg->eax), "=D" (reg->ebx), "=c" (reg->ecx), "=d" (reg->edx) : "a" (op) : "cc");
+         : "=a" (reg->eax), "=D" (reg->ebx), "=c" (reg->ecx), "=d" (reg->edx)
+         : "a" (op), "c" (sub_op) : "cc");
 #else
     __asm__ __volatile__
-        ("cpuid": "=a" (reg->eax), "=b" (reg->ebx), "=c" (reg->ecx), "=d" (reg->edx) : "a" (op) : "cc");
+         ("cpuid": "=a" (reg->eax), "=b" (reg->ebx), "=c" (reg->ecx), "=d" (reg->edx)
+          : "a" (op), "c" (sub_op) : "cc");
 #endif
 }
 
 void read_vendor_string(e_registers_t cpuid_1, char* vendor)
 {
     /* Read vendor string from ebx, edx, ecx
-     * Registers in `cpuid_1` resulted from call to read_cpuid(1, &cpuid_1)
+     * Registers in `cpuid_1` resulted from call to read_cpuid(1, 0, &cpuid_1)
      */
     uint32_t* char_as_int=(uint32_t*)vendor;
     *(char_as_int++) = cpuid_1.ebx;
@@ -55,14 +59,14 @@ void read_brand_string(char* brand)
     uint32_t* char_as_int=(uint32_t*)brand;
     int op;
     e_registers_t registers;
-    read_cpuid(0x80000000, &registers);
+    read_cpuid(0x80000000, 0, &registers);
     if (registers.eax < 0x80000004)
     {
         brand[0] = '\0';
     }
     for (op = 0x80000002; op < 0x80000005; op++)
     {
-        read_cpuid(op, &registers);
+        read_cpuid(op, 0, &registers);
         *(char_as_int++) = registers.eax;
         *(char_as_int++) = registers.ebx;
         *(char_as_int++) = registers.ecx;
