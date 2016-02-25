@@ -18,7 +18,7 @@ SYSCTL_FLAG_TRANSLATIONS = {
 
 
 def get_sysctl_cpu():
-    sysctl_text = check_output(['sysctl', '-a']).encode('utf8')
+    sysctl_text = check_output(['sysctl', '-a']).decode('utf8')
     info = {}
     for line in sysctl_text.splitlines():
         if not line.startswith('machdep.cpu.'):

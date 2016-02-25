@@ -30,28 +30,57 @@ def _bit_mask(a, b):
     return BIT_MASK(a, b)
 
 
-def _has_bit(val, bit):
-    return bool(val & 1 << bit)
+cdef int _has_bit(uint32_t val, int bit):
+    return (val & 1 << bit) != 0
 
 
 cdef class X86Info:
     cdef:
         readonly e_registers_t reg0, reg1, reg7
-        readonly char vendor[32], brand[64]
+        readonly object vendor, brand
         readonly int stepping, model, family, processor_type
         readonly int extended_model, extended_family
         readonly int model_display, family_display, signature
-        readonly int has_mmx, has_sse, has_sse2, has_sse3, has_3dnow, has_ssse3
-        readonly int has_sse4_1, has_sse4_2
+        readonly bint has_mmx, has_sse, has_sse2, has_sse3, has_3dnow, has_ssse3
+        readonly bint has_sse4_1, has_sse4_2
+
+    report_template = """\
+x86cpu report
+-------------
+brand            : {i.brand}
+vendor           : {i.vendor}
+model (display)  : {i.model_display}
+family (display) : {i.family_display}
+model            : {i.model}
+family           : {i.family}
+extended model   : {i.extended_model}
+extended family  : {i.extended_family}
+stepping         : {i.stepping}
+processor type   : {i.processor_type}
+signature        : {i.signature}
+MMX              : {i.has_mmx}
+3DNow!           : {i.has_3dnow}
+SSE              : {i.has_sse}
+SSE2             : {i.has_sse2}
+SSE3             : {i.has_sse3}
+SSSE3            : {i.has_ssse3}
+SSE4.1           : {i.has_sse4_1}
+SSE4.2           : {i.has_sse4_2}
+supports AVX     : {i.supports_avx}
+supports AVX2    : {i.supports_avx2}
+"""
 
     def __cinit__(self):
         cdef:
             cpu_classifiers_t cpu_classifiers
+            char _vendor[32], _brand[64]
         read_cpuid(0, 0, &self.reg0)
         read_cpuid(1, 0, &self.reg1)
         read_cpuid(7, 0, &self.reg7)
-        read_vendor_string(self.reg0, self.vendor)
-        read_brand_string(self.brand)
+        read_vendor_string(self.reg0, _vendor)
+        read_brand_string(_brand)
+        self.brand = _brand.decode('latin1')
+        self.vendor = _vendor.decode('latin1')
         read_classifiers(self.reg1, &cpu_classifiers)
         self.stepping = cpu_classifiers.stepping
         self.model = cpu_classifiers.model
@@ -103,7 +132,12 @@ cdef class X86Info:
         """ True if we have AVX support and CPUID reports AVX2 on CPU
         """
         def __get__(self):
-            return self.supports_avx and _has_bit(self.reg7.ebx, 5)
+            return self.supports_avx and bool(_has_bit(self.reg7.ebx, 5))
+
+    def report(self):
+        """ Return string giving report on CPU features
+        """
+        return self.report_template.format(i=self)
 
 
 info = X86Info()

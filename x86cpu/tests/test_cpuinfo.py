@@ -33,7 +33,7 @@ def setup_module():
 
 
 def test_against_ref():
-    assert info.vendor == REF_INFO['vendor'].encode('latin1')
+    assert info.vendor == REF_INFO['vendor']
     for attr_name in ('extended_family', 'extended_model', 'stepping',
                       'model_display', 'family_display', 'signature',
                       'supports_avx', 'supports_avx2'):
@@ -62,6 +62,7 @@ def test_bitmask():
 
 
 def test_smoke():
+    avx = info.supports_avx
 
     def cmp_reg(a, b):
         # ebx appears to be incompletely defined for cpuid(1) call
@@ -71,3 +72,4 @@ def test_smoke():
     cmp_reg(info.reg0, cpuid(0))
     cmp_reg(info.reg1, cpuid(1))
     assert info.reg7 == cpuid(7)
+    assert info.report() is not None
