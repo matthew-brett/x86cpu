@@ -73,4 +73,9 @@ setup(
     ],
     long_description = open('README.rst', 'rt').read(),
     setup_requires=['cython'] if need_cython else [],
+    entry_points={
+        'console_scripts': [
+            'x86report = x86cpu.cpuinfo:print_report',
+        ],
+    },
 )

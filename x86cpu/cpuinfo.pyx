@@ -3,6 +3,9 @@
 Read CPU information using CPUID instruction.
 """
 
+from __future__ import print_function
+
+
 cdef extern from "cpuid.h":
     ctypedef unsigned int uint32_t
     ctypedef struct e_registers_t:
@@ -141,6 +144,10 @@ supports AVX2    : {i.supports_avx2}
 
 
 info = X86Info()
+
+
+def print_report():
+    print(info.report())
 
 
 cpdef e_registers_t cpuid(uint32_t op, uint32_t sub_op=0):
