@@ -108,4 +108,5 @@ def get_wmic_cpu():
         'mmx': has_feature(3),
         '3dnow': has_feature(7),
     }
+    info['unknown_flags'] = ('ssse3',)
     return info
