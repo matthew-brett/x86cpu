@@ -57,7 +57,7 @@ def get_proc_cpuinfo():
             pass
         info[key] = value
     info['flags'] = info['flags'].split()
-    info['unknown_flags'] = ['3dnow']
+    info['unknown_flags'] = ['3dnow', 'sse3']
     info['supports_avx'] = 'avx' in info['flags']
     info['supports_avx2'] = 'avx2' in info['flags']
     return info

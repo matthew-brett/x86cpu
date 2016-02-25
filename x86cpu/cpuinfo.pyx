@@ -41,7 +41,7 @@ cdef class X86Info:
         readonly int stepping, model, family, processor_type
         readonly int extended_model, extended_family
         readonly int model_display, family_display, signature
-        readonly int has_mmx, has_sse, has_sse2, has_sse3, has_3dnow
+        readonly int has_mmx, has_sse, has_sse2, has_sse3, has_3dnow, has_ssse3
 
     def __cinit__(self):
         cdef:
@@ -70,6 +70,7 @@ cdef class X86Info:
         self.has_sse2 = _has_bit(edx1, 26)
         self.has_3dnow = _has_bit(edx1, 26)
         self.has_sse3 = _has_bit(ecx1, 0)
+        self.has_ssse3 = _has_bit(ecx1, 9)
 
     property supports_avx:
         def __get__(self):
