@@ -15,7 +15,7 @@ void read_cpuid(uint32_t op, uint32_t sub_op, e_registers_t* reg)
 {
 #if defined(_MSC_VER)
     int cpu_info[4] = {-1};
-    __cpuidex(cpu_info, (int)op, int(sub_op));
+    __cpuidex(cpu_info, (int)op, (int)sub_op);
     reg->eax = cpu_info[0];
     reg->ebx = cpu_info[1];
     reg->ecx = cpu_info[2];
