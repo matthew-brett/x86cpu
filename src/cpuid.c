@@ -1,7 +1,7 @@
 /*
- * TODO:
- *  - test for cpuid availability
- *  - test for OS support (tricky)
+ * Using the CPUID instruction to get CPU information
+ *
+ * See: https://en.wikipedia.org/wiki/CPUID
  */
 
 #include <string.h>
@@ -16,31 +16,24 @@ int has_cpuid(void)
      */
     return 1;
 #else
-    /* Algorithm somewhat based on http://wiki.osdev.org/CPUID
-     *
+    /*
      * CPUID instruction present if it is possible to set the ID bit in EFLAGS.
-     * ID bit is 0x200000.
+     * ID bit is 0x200000 (21st bit).
      *
+     * http://wiki.osdev.org/CPUID
      */
     int tf = 0;
     __asm__ __volatile__(
-        "pushfd;"  /* store eflags */
-        "push %%ecx;"  /* store ecx */
-        "pushfd;"  /* get current eflags into eax */
-        "pop %%eax;"
+        "pushfl; pop %%eax;"  /* get current eflags into eax */
         "mov %%eax, %%ecx;"  /* store original eflags in ecx */
-        "xor 0x00200000, %%eax;"  /* flip bit 21 */
-        "push %%eax;"  /* try to set eflags with this bit flipped */
-        "popfd;"  /* if bit is still flipped after popfd, we have CPUID */
-        "pushfd;"  /* get new eflags into eax */
-        "pop %%eax;"
-        "xor %%ecx, %%eax;"  /* is bit still flipped? */
-        "and 0x00200000, %%eax;"
-        "pop %%ecx;"  /* restore ecx */
-        "popfd;"  /* restore eflags */
-        : "=a" (tf)
-        :
-        : "cc");
+        "xorl $0x200000, %%eax;"  /* flip bit 21 */
+        "push %%eax; popfl;"  /* try to set eflags with this bit flipped */
+        "pushfl; pop %%eax;"  /* get resulting eflags back into eax */
+        "xorl %%ecx, %%eax;"  /* is bit still flipped cf original? */
+        "shrl $21, %%eax;"   /* if so, we have CPUID */
+        : "=a" (tf)  /* outputs */
+        :            /* inputs */
+        : "cc", "%ecx");     /* flags and ecx are clobbered */
     return tf;
 #endif
 }

@@ -20,7 +20,7 @@ cdef extern from "cpuid.h":
         int processor_type
         int extended_model
         int extended_family
-    int has_cpuid(void)
+    int has_cpuid()
     void read_cpuid(uint32_t eax, uint32_t ecx, e_registers_t* res)
     void read_brand_string(char [])
     void read_vendor_string(e_registers_t, char[])
