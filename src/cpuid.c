@@ -8,6 +8,43 @@
 
 #include "cpuid.h"
 
+int has_cpuid(void)
+{
+#if defined(__x86_64__) || defined(_M_AMD64) || defined (_M_X64)
+    /* All 64-bit capable chips have cpuid, according to
+     * https://software.intel.com/en-us/articles/using-cpuid-to-detect-the-presence-of-sse-41-and-sse-42-instruction-sets/
+     */
+    return 1;
+#else
+    /* Algorithm somewhat based on http://wiki.osdev.org/CPUID
+     *
+     * CPUID instruction present if it is possible to set the ID bit in EFLAGS.
+     * ID bit is 0x200000.
+     *
+     */
+    int tf = 0;
+    __asm__ __volatile__(
+        "pushfd;"  /* store eflags */
+        "push %%ecx;"  /* store ecx */
+        "pushfd;"  /* get current eflags into eax */
+        "pop %%eax;"
+        "mov %%eax, %%ecx;"  /* store original eflags in ecx */
+        "xor 0x00200000, %%eax;"  /* flip bit 21 */
+        "push %%eax;"  /* try to set eflags with this bit flipped */
+        "popfd;"  /* if bit is still flipped after popfd, we have CPUID */
+        "pushfd;"  /* get new eflags into eax */
+        "pop %%eax;"
+        "xor %%ecx, %%eax;"  /* is bit still flipped? */
+        "and 0x00200000, %%eax;"
+        "pop %%ecx;"  /* restore ecx */
+        "popfd;"  /* restore eflags */
+        : "=a" (tf)
+        :
+        : "cc");
+    return tf;
+#endif
+}
+
 /* shift a by b bits to the right, then mask with c */
 #define SHIFT_MASK(a, b, c) ((((a) >> (b)) & (c)))
 

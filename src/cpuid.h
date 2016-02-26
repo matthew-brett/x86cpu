@@ -30,6 +30,7 @@ typedef struct {
     int extended_family;
 } cpu_classifiers_t;
 
+int has_cpuid(void);
 void read_cpuid(uint32_t, uint32_t, e_registers_t*);
 void read_brand_string(char []);
 void read_vendor_string(e_registers_t, char[]);

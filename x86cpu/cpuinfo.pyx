@@ -20,6 +20,7 @@ cdef extern from "cpuid.h":
         int processor_type
         int extended_model
         int extended_family
+    int has_cpuid(void)
     void read_cpuid(uint32_t eax, uint32_t ecx, e_registers_t* res)
     void read_brand_string(char [])
     void read_vendor_string(e_registers_t, char[])
@@ -143,11 +144,11 @@ supports AVX2    : {i.supports_avx2}
         return self.report_template.format(i=self)
 
 
-info = X86Info()
+info = None if not has_cpuid() else X86Info()
 
 
 def print_report():
-    print(info.report())
+    print("No cpuid on this CPU" if not has_cpuid() else info.report())
 
 
 cpdef e_registers_t cpuid(uint32_t op, uint32_t sub_op=0):
