@@ -11,6 +11,11 @@
 /* shift a by b bits to the right, then mask with c */
 #define SHIFT_MASK(a, b, c) ((((a) >> (b)) & (c)))
 
+/*
+ * https://software.intel.com/en-us/articles/using-cpuid-to-detect-the-presence-of-sse-41-and-sse-42-instruction-sets/
+ * https://software.intel.com/en-us/articles/how-to-detect-new-instruction-support-in-the-4th-generation-intel-core-processor-family
+ * https://en.wikipedia.org/wiki/CPUID#CPUID_usage_from_high-level_languages
+ */
 void read_cpuid(uint32_t op, uint32_t sub_op, e_registers_t* reg)
 {
 #if defined(_MSC_VER)
@@ -20,22 +25,24 @@ void read_cpuid(uint32_t op, uint32_t sub_op, e_registers_t* reg)
     reg->ebx = cpu_info[1];
     reg->ecx = cpu_info[2];
     reg->edx = cpu_info[3];
-#elif defined(__i386__) && defined(__PIC__)
-    /* see:
-     * https://software.intel.com/en-us/articles/how-to-detect-new-instruction-support-in-the-4th-generation-intel-core-processor-family
-     *
-     * Must preserve EBX register for PIC on 32-bit
-     */
-    __asm__ __volatile__
-        ("mov %%ebx, %%edi;"
-         "cpuid;"
-         "xchgl %%ebx, %%edi;"
-         : "=a" (reg->eax), "=D" (reg->ebx), "=c" (reg->ecx), "=d" (reg->edx)
-         : "a" (op), "c" (sub_op) : "cc");
 #else
-    __asm__ __volatile__
-         ("cpuid": "=a" (reg->eax), "=b" (reg->ebx), "=c" (reg->ecx), "=d" (reg->edx)
-          : "a" (op), "c" (sub_op) : "cc");
+    __asm__ __volatile__(
+#if defined(__x86_64__) || defined(_M_AMD64) || defined (_M_X64)
+        "pushq %%rbx;" /* save %rbx on 64-bit */
+#else
+        "pushl %%ebx;" /* save %ebx on 32-bit */
+#endif
+        "cpuid;"
+        /* write EBX value somewhere we can find it */
+        "movl %%ebx, %[ebx_store];"
+#if defined(__x86_64__) || defined(_M_AMD64) || defined (_M_X64)
+        "popq %%rbx;"
+#else
+        "popl %%ebx;"
+#endif
+        : "=a" (reg->eax), [ebx_store] "=rm" (reg->ebx), "=c" (reg->ecx), "=d" (reg->edx)
+        : "a" (op), "c" (sub_op)
+        : "cc");
 #endif
 }
 

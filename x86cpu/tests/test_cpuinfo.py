@@ -69,7 +69,7 @@ def test_smoke():
         for regname in ('eax', 'ecx', 'edx'):
             assert a[regname] == b[regname]
 
-    cmp_reg(info.reg0, cpuid(0))
+    assert info.reg0 == cpuid(0)
     cmp_reg(info.reg1, cpuid(1))
     assert info.reg7 == cpuid(7)
     assert info.report() is not None
