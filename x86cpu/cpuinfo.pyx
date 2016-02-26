@@ -1,6 +1,6 @@
 # -*- Mode: Python -*-
 """
-Read CPU information using CPUID instruction.
+Read CPU information using cpuid instruction.
 """
 
 from __future__ import print_function
@@ -20,7 +20,7 @@ cdef extern from "cpuid.h":
         int processor_type
         int extended_model
         int extended_family
-    int has_cpuid()
+    int c_has_cpuid "has_cpuid" ()
     void read_cpuid(uint32_t eax, uint32_t ecx, e_registers_t* res)
     void read_brand_string(char [])
     void read_vendor_string(e_registers_t, char[])
@@ -121,7 +121,7 @@ supports AVX2    : {i.supports_avx2}
             registers.
 
             See:
-            * https://en.wikipedia.org/wiki/CPUID
+            * https://en.wikipedia.org/wiki/cpuid
             * https://en.wikipedia.org/wiki/Advanced_Vector_Extensions
             * https://software.intel.com/en-us/blogs/2011/04/14/is-avx-enabled/
 
@@ -133,7 +133,7 @@ supports AVX2    : {i.supports_avx2}
             return bool(os_supports_avx(self.reg1))
 
     property supports_avx2:
-        """ True if we have AVX support and CPUID reports AVX2 on CPU
+        """ True if we have AVX support and cpuid reports AVX2 on CPU
         """
         def __get__(self):
             return self.supports_avx and bool(_has_bit(self.reg7.ebx, 5))
@@ -151,9 +151,17 @@ def print_report():
     print("No cpuid on this CPU" if not has_cpuid() else info.report())
 
 
+cpdef bint has_cpuid():
+    """ Return True if this CPU has the cpuid instruction
+    """
+    return c_has_cpuid()
+
+
 cpdef e_registers_t cpuid(uint32_t op, uint32_t sub_op=0):
     """ Register values from cpuid instruction with EAX=`op`, ECX=`sub_op`
     """
     cdef e_registers_t registers
+    if not has_cpuid():
+        raise RuntimeError('CPU does not have cpuid instruction')
     read_cpuid(op, sub_op, &registers)
     return registers

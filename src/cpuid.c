@@ -1,5 +1,5 @@
 /*
- * Using the CPUID instruction to get CPU information
+ * Using the cpuid instruction to get CPU information
  *
  * See: https://en.wikipedia.org/wiki/CPUID
  */
@@ -17,7 +17,7 @@ int has_cpuid(void)
     return 1;
 #else
     /*
-     * CPUID instruction present if it is possible to set the ID bit in EFLAGS.
+     * cpuid instruction present if it is possible to set the ID bit in EFLAGS.
      * ID bit is 0x200000 (21st bit).
      *
      * http://wiki.osdev.org/CPUID
@@ -30,7 +30,7 @@ int has_cpuid(void)
         "push %%eax; popfl;"  /* try to set eflags with this bit flipped */
         "pushfl; pop %%eax;"  /* get resulting eflags back into eax */
         "xorl %%ecx, %%eax;"  /* is bit still flipped cf original? */
-        "shrl $21, %%eax;"   /* if so, we have CPUID */
+        "shrl $21, %%eax;"   /* if so, we have cpuid */
         : "=a" (tf)  /* outputs */
         :            /* inputs */
         : "cc", "%ecx");     /* flags and ecx are clobbered */
