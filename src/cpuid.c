@@ -23,6 +23,26 @@ int has_cpuid(void)
      * http://wiki.osdev.org/CPUID
      */
     int tf = 0;
+#if defined (_MSC_VER)
+    /* see notes for gcc asm below */
+    __asm {
+        push ecx
+        pushfd
+        pop eax
+        mov ecx, eax
+        xor eax, 200000h
+        push eax
+        popfd
+        pushfd
+        pop eax
+        xor eax, ecx
+        shr eax, 21
+        push ecx
+        popfd
+        pop ecx
+        mov tf, eax
+    }
+#else
     __asm__ __volatile__(
         "pushfl; pop %%eax;"  /* get current eflags into eax */
         "mov %%eax, %%ecx;"  /* store original eflags in ecx */
@@ -34,6 +54,7 @@ int has_cpuid(void)
         : "=a" (tf)  /* outputs */
         :            /* inputs */
         : "cc", "%ecx");     /* flags and ecx are clobbered */
+#endif
     return tf;
 #endif
 }
