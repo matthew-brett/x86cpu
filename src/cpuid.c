@@ -82,21 +82,19 @@ void read_cpuid(uint32_t op, uint32_t sub_op, e_registers_t* reg)
     reg->ecx = cpu_info[2];
     reg->edx = cpu_info[3];
 #else
+    /*
+     * Wikipedia page suggests it is necessary to stash ebx register on 32-bit,
+     * rbx register on 64-bit:
+     * https://en.wikipedia.org/wiki/CPUID#CPUID_usage_from_high-level_languages
+     *
+     * However, experiments with
+     * $ gcc -fverbose-asm -g -c cpuid.c
+     * $ objdump -S -d cpuid.o > cpuid.s
+     * showed that gcc stashes these by default.
+     */
     __asm__ __volatile__(
-#if defined(__x86_64__) || defined(_M_AMD64) || defined (_M_X64)
-        "pushq %%rbx;" /* save %rbx on 64-bit */
-#else
-        "pushl %%ebx;" /* save %ebx on 32-bit */
-#endif
         "cpuid;"
-        /* write EBX value somewhere we can find it */
-        "movl %%ebx, %[ebx_store];"
-#if defined(__x86_64__) || defined(_M_AMD64) || defined (_M_X64)
-        "popq %%rbx;"
-#else
-        "popl %%ebx;"
-#endif
-        : "=a" (reg->eax), [ebx_store] "=rm" (reg->ebx), "=c" (reg->ecx), "=d" (reg->edx)
+        : "=a" (reg->eax), "=b" (reg->ebx), "=c" (reg->ecx), "=d" (reg->edx)
         : "a" (op), "c" (sub_op)
         : "cc");
 #endif
