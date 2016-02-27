@@ -120,6 +120,7 @@ void read_brand_string(char* brand)
     uint32_t* char_as_int=(uint32_t*)brand;
     int op;
     e_registers_t registers;
+    /* does this cpuid support extended calls up to 0x80000004? */
     read_cpuid(0x80000000, 0, &registers);
     if (registers.eax < 0x80000004)
     {

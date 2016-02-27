@@ -45,8 +45,10 @@ cdef class X86Info:
         readonly int stepping, model, family, processor_type
         readonly int extended_model, extended_family
         readonly int model_display, family_display, signature
+        readonly int max_basic_arg
         readonly bint has_mmx, has_sse, has_sse2, has_sse3, has_3dnow, has_ssse3
         readonly bint has_sse4_1, has_sse4_2
+        bint has_reg7  # True if cpuid supports cpuid(7)
 
     report_template = """\
 x86cpu report
@@ -79,8 +81,11 @@ supports AVX2    : {i.supports_avx2}
             cpu_classifiers_t cpu_classifiers
             char _vendor[32], _brand[64]
         read_cpuid(0, 0, &self.reg0)
+        self.max_basic_arg = self.reg0.eax
         read_cpuid(1, 0, &self.reg1)
-        read_cpuid(7, 0, &self.reg7)
+        self.has_reg7 = self.max_basic_arg >= 7
+        if self.has_reg7:
+            read_cpuid(7, 0, &self.reg7)
         read_vendor_string(self.reg0, _vendor)
         read_brand_string(_brand)
         self.brand = _brand.decode('latin1')
@@ -136,7 +141,9 @@ supports AVX2    : {i.supports_avx2}
         """ True if we have AVX support and cpuid reports AVX2 on CPU
         """
         def __get__(self):
-            return self.supports_avx and bool(_has_bit(self.reg7.ebx, 5))
+            return (self.supports_avx and
+                    self.has_reg7 and
+                    bool(_has_bit(self.reg7.ebx, 5)))
 
     def report(self):
         """ Return string giving report on CPU features
