@@ -20,32 +20,37 @@ int has_cpuid(void)
      * cpuid instruction present if it is possible to set the ID bit in EFLAGS.
      * ID bit is 0x200000 (21st bit).
      *
+     * https://software.intel.com/en-us/articles/using-cpuid-to-detect-the-presence-of-sse-41-and-sse-42-instruction-sets/
      * http://wiki.osdev.org/CPUID
      */
     int tf = 0;
 #if defined (_MSC_VER)
-    /* see notes for gcc asm below */
+    /*
+     * See also comments in for gcc asm below.
+     * Notes on MSVX asm and registers at
+     * https://msdn.microsoft.com/en-us/library/k1a8ss06.aspx
+     */
     __asm {
-        push ecx
-        pushfd
+        push ecx;  just in case (__fastcall needs ecx preserved)
+        pushfd;  original eflags
+        pushfd;  original eflags again
+        pop eax;  copy of eflags into eax
+        mov ecx, eax;  store original eflags in ecx
+        xor eax, 200000h;  flip bit 21
+        push eax;  set eflags from eax
+        popfd;  this call will unflip bit 21 if we lack cpuid
+        pushfd;  copy of new eflags into eax
         pop eax
-        mov ecx, eax
-        xor eax, 200000h
-        push eax
-        popfd
-        pushfd
-        pop eax
-        xor eax, ecx
-        shr eax, 21
-        push ecx
-        popfd
-        pop ecx
-        mov tf, eax
+        xor eax, ecx;  check whether copy of eflags still has flipped bit
+        shr eax, 21;   1 if bit still flipped, 0 otherwise
+        mov tf, eax;  put eax result into return variable
+        popfd  ; restore original eflags
+        pop ecx ; restore original ecx
     }
 #else
     __asm__ __volatile__(
         "pushfl; pop %%eax;"  /* get current eflags into eax */
-        "mov %%eax, %%ecx;"  /* store original eflags in ecx */
+        "mov %%eax, %%ecx;"  /* store copy of input eflags in ecx */
         "xorl $0x200000, %%eax;"  /* flip bit 21 */
         "push %%eax; popfl;"  /* try to set eflags with this bit flipped */
         "pushfl; pop %%eax;"  /* get resulting eflags back into eax */
@@ -53,7 +58,7 @@ int has_cpuid(void)
         "shrl $21, %%eax;"   /* if so, we have cpuid */
         : "=a" (tf)  /* outputs */
         :            /* inputs */
-        : "cc", "%ecx");     /* flags and ecx are clobbered */
+        : "cc", "%ecx");     /* eflags and ecx are clobbered */
 #endif
     return tf;
 #endif
