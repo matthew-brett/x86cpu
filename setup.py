@@ -60,7 +60,7 @@ setup(
     url='http://github.com/matthew-brett/x86cpu',
     license='BSD license',
     classifiers = [
-        'Development Status :: 2 - Pre-Alpha',
+        'Development Status :: 3 - Alpha',
         'Environment :: Console',
         'Intended Audience :: Developers',
         'License :: OSI Approved :: BSD License',
