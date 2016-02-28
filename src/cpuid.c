@@ -125,6 +125,7 @@ void read_brand_string(char* brand)
     if (registers.eax < 0x80000004)
     {
         brand[0] = '\0';
+        return;
     }
     for (op = 0x80000002; op < 0x80000005; op++)
     {
