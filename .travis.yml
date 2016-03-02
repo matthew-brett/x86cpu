@@ -59,4 +59,4 @@ script:
     # Change into an innocuous directory and find tests from installation
     - mkdir for_testing
     - cd for_testing
-    - py.test ../x86cpu
+    - py.test --pyargs x86cpu
