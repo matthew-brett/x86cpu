@@ -66,8 +66,11 @@ build_script:
   - cd ..
 
 test_script:
-  # Run the project tests
-  - py.test x86cpu
+  # Run the project tests from the installed package
+  - mkdir tmp_for_tests
+  - cd tmp_for_tests
+  - py.test --pyargs x86cpu
+  - cd ..
 
 artifacts:
   # Archive the generated packages in the ci.appveyor.com build report.
