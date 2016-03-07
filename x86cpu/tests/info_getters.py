@@ -65,7 +65,11 @@ def get_proc_cpuinfo():
             pass
         info[key] = value
     info['flags'] = info['flags'].split()
-    info['unknown_flags'] = ['3dnow', 'sse3']
+    # cpuinfo records presence of Prescott New Instructions, Intel's code name
+    # for SSE3.
+    if 'pni' in info['flags']:
+        info['flags'].append('sse3')
+    info['unknown_flags'] = ['3dnow']
     info['supports_avx'] = 'avx' in info['flags']
     info['supports_avx2'] = 'avx2' in info['flags']
     return info
