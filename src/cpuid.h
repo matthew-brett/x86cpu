@@ -45,4 +45,6 @@ int os_supports_avx(e_registers_t cpuid_1);
  */
 #define BIT_MASK(a, b) (((unsigned) -1 >> (31 - (b))) & ~((1U << (a)) - 1))
 
+#define HAS_BIT(val, bit) ((val >> bit) & 1)
+
 #endif

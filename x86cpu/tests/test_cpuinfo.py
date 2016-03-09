@@ -5,8 +5,10 @@ from sys import platform as PLATFORM, path
 from os.path import dirname
 path.append(dirname(__file__))
 
+from itertools import product
+
 from x86cpu import info, cpuid
-from x86cpu.cpuinfo import _bit_mask
+from x86cpu.cpuinfo import _bit_mask, _has_bit
 
 import pytest
 
@@ -59,6 +61,21 @@ def test_bitmask():
             # Test bit1 through bit2 (inclusive)
             bits = range(bit1, bit2 + 1)
             assert _bit_mask(bit1, bit2) == set_bits(bits)
+
+
+def test_has_bit():
+    assert _has_bit(1, 0)
+    assert _has_bit(3, 0)
+    assert _has_bit(3, 1)
+    assert not _has_bit(0, 2)
+    assert not _has_bit(0, 1)
+    assert _has_bit(128, 7)
+    assert not _has_bit(128, 0)
+    for bit, no_bit in product(range(32), range(32)):
+        val = 2**bit
+        assert _has_bit(val, bit)
+        if bit != no_bit:
+            assert not _has_bit(val, no_bit)
 
 
 def test_smoke():

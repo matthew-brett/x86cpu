@@ -27,15 +27,16 @@ cdef extern from "cpuid.h":
     void read_classifiers(e_registers_t, cpu_classifiers_t*)
     int os_supports_avx(e_registers_t cpuid_1)
     uint32_t BIT_MASK(uint32_t, uint32_t)
+    uint32_t HAS_BIT(uint32_t, uint32_t)
+
+
+cpdef int _has_bit(uint32_t val, int bit):
+    return HAS_BIT(val, bit)
 
 
 def _bit_mask(a, b):
     # Instantiate macro in order to test in Python
     return BIT_MASK(a, b)
-
-
-cdef int _has_bit(uint32_t val, int bit):
-    return (val & 1 << bit) != 0
 
 
 cdef class X86Info:
