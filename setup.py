@@ -33,10 +33,10 @@ CYTHON_MIN_VERSION="0.18"
 ext_modules = [Extension("x86cpu.cpuinfo",
                          [pjoin(*parts) for parts in (
                              ['x86cpu', 'cpuinfo.pyx'],
-                             ['src', 'cpuinfo.c'],
-                             ['src', 'cpuid.c'],
-                             ['src', 'os_restores_ymm.c'])],
-                         include_dirs = ['src'])]
+                             ['libx86cpu', 'cpuinfo.c'],
+                             ['libx86cpu', 'cpuid.c'],
+                             ['libx86cpu', 'os_restores_ymm.c'])],
+                         include_dirs = ['libx86cpu'])]
 
 # Cython is a dependency for building extensions, iff we don't have stamped up
 # pyx and c files.

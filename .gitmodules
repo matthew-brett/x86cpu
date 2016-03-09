@@ -1,0 +1,3 @@
+[submodule "libx86cpu"]
+	path = libx86cpu
+	url = https://github.com/matthew-brett/libx86cpu.git
