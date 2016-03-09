@@ -33,6 +33,7 @@ CYTHON_MIN_VERSION="0.18"
 ext_modules = [Extension("x86cpu.cpuinfo",
                          [pjoin(*parts) for parts in (
                              ['x86cpu', 'cpuinfo.pyx'],
+                             ['src', 'cpuinfo.c'],
                              ['src', 'cpuid.c'],
                              ['src', 'os_restores_ymm.c'])],
                          include_dirs = ['src'])]
