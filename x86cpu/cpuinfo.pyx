@@ -82,10 +82,13 @@ supports AVX2    : {i.supports_avx2}
 
     def __init__(self):
         cdef:
-            cpu_info_t info_struct
-        if not collect_info(&info_struct):
+            cpu_info_t info
+        if not collect_info(&info):
             raise RuntimeError("cpuid not present on this CPU")
-        self.__dict__.update(info_struct)
+        self.__dict__.update(info)
+        # Convert byte strings to strings
+        for key in ('vendor', 'brand'):
+            self.__dict__[key] = self.__dict__[key].decode('latin1')
 
     def report(self):
         return self.report_template.format(i=self)
