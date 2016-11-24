@@ -8,11 +8,8 @@ env:
     global:
         - DEPENDS=cython
         - INSTALL_TYPE="setup"
-        - MANYLINUX_URL=https://nipy.bic.berkeley.edu/manylinux
 
 python:
-    - 2.6
-    - 3.2
     - 3.3
     - 3.4
     - 3.5
@@ -34,8 +31,8 @@ matrix:
 before_install:
     - virtualenv --python=python venv
     - source venv/bin/activate
-    - python -m pip install -U pip wheel
-    - pip install -f $MANYLINUX_URL $DEPENDS
+    - python -m pip install -U pip wheel setuptools
+    - pip install $DEPENDS
 
 install:
     - |
@@ -50,16 +47,16 @@ install:
           pip install --pre --no-index -f . x86cpu
           cd ..
       elif [ "$INSTALL_TYPE" == "wheel" ]; then
-          pip install wheel
           python setup.py bdist_wheel
-          pip install dist/*.whl
+          pip install --pre --no-index -f dist x86cpu
       fi
 
 script:
     - pip install pytest
-    # Change into an innocuous directory and find tests from installation
+    # Change into an innocuous directory
     - mkdir for_testing
     - cd for_testing
-    - py.test --pyargs x86cpu
     # Test script output
     - x86report
+    # find tests from installation
+    - py.test --pyargs x86cpu

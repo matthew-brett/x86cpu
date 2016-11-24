@@ -70,6 +70,8 @@ test_script:
   # Run the project tests from the installed package
   - mkdir tmp_for_tests
   - cd tmp_for_tests
+  # Test script output
+  - x86report
   - py.test --pyargs x86cpu
   - cd ..
 
