@@ -30,8 +30,9 @@ matrix:
       env:
         # Check CYTHON_MIN_VERSION in setup.py
         - DEPENDS=cython==0.18
+
 before_install:
-    - virtualenv venv
+    - virtualenv --python=python venv
     - source venv/bin/activate
     - python -m pip install -U pip wheel
     - pip install -f $MANYLINUX_URL $DEPENDS
