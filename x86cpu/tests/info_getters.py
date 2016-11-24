@@ -3,6 +3,10 @@
 
 from subprocess import check_output
 
+class Missing(object):
+    """ Class to indicate missing info """
+
+
 
 SYSCTL_KEY_TRANSLATIONS = dict(
     model='model_display',
@@ -104,7 +108,7 @@ def get_wmic_cpu():
         info[key] = value
     # Stepping sometines the empty string in wmic output
     if 'stepping' in info and info['stepping'] == '':
-        info['stepping'] = 0
+        info['stepping'] = Missing
     # Get extra information from kernel32
     from ctypes import windll, wintypes
     has_feature = windll.kernel32.IsProcessorFeaturePresent
