@@ -60,3 +60,5 @@ script:
     - mkdir for_testing
     - cd for_testing
     - py.test --pyargs x86cpu
+    # Test script output
+    - x86report
