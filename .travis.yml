@@ -8,7 +8,7 @@ env:
     global:
         - DEPENDS=cython
         - INSTALL_TYPE="setup"
-        - MANYLINUX_URL=https://nipy.bic.berkeley.edu/manylinux
+        - MANYLINUX_URL=https://5cf40426d9f06eb7461d-6fe47d9331aba7cd62fc36c7196769e4.ssl.cf2.rackcdn.com
 
 python:
     - 2.6
@@ -16,6 +16,8 @@ python:
     - 3.3
     - 3.4
     - 3.5
+    - 3.6
+    - 3.7
 
 matrix:
   include:
@@ -30,6 +32,7 @@ matrix:
       env:
         # Check CYTHON_MIN_VERSION in setup.py
         - DEPENDS=cython==0.18
+
 before_install:
     - virtualenv venv
     - source venv/bin/activate
