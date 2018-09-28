@@ -102,9 +102,10 @@ def get_wmic_cpu():
         if key in info:  # Now we're looking at another processor
             break
         info[key] = value
-    # Stepping sometines the empty string in wmic output
+    # Stepping sometines the empty string in wmic output, in which case we
+    # don't know what the stepping is.
     if 'stepping' in info and info['stepping'] == '':
-        info['stepping'] = 0
+        info['stepping'] = None
     # Get extra information from kernel32
     from ctypes import windll, wintypes
     has_feature = windll.kernel32.IsProcessorFeaturePresent

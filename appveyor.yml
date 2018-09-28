@@ -16,6 +16,15 @@ environment:
     matrix:
 
     - PYTHON: "C:\\Python27"
+    - PYTHON: "C:\\Python27-x64"
+    - PYTHON: "C:\\Python34"
+    - PYTHON: "C:\\Python34-x64"
+    - PYTHON: "C:\\Python35"
+    - PYTHON: "C:\\Python35-x64"
+    - PYTHON: "C:\\Python36"
+    - PYTHON: "C:\\Python36-x64"
+    - PYTHON: "C:\\Python37"
+    - PYTHON: "C:\\Python37-x64"
 
 install:
   # Prepend newly installed Python to the PATH of this build (this cannot be
@@ -62,7 +71,3 @@ on_success:
   # disable the ssl checks.
   # - pip install wheelhouse-uploader
   # - python -m wheelhouse_uploader upload --no-ssl-check --local-folder=dist win-dev-wheels
-
-on_finish:
-  # Note the resulting IP:port address, and use in Microsoft Remote Desktop
-  - ps: $blockRdp = $true; iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
