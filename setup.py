@@ -25,6 +25,10 @@ sys.path.insert(0, pjoin(dirname(__file__), 'fake_pyrex'))
 import versioneer
 cmdclass=versioneer.get_cmdclass()
 
+# Override versioneer stuff
+cmdclass = {}
+versioneer.get_version = lambda : "0.4"
+
 # Utilities to build from c or pyx files
 from cythexts import cyproc_exts, get_pyx_sdist
 # Check this version is tested in .travis.yml
