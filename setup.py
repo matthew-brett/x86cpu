@@ -26,7 +26,8 @@ import versioneer
 cmdclass=versioneer.get_cmdclass()
 
 # Override versioneer stuff
-cmdclass = {}
+from distutils.command.sdist import sdist
+cmdclass = {'sdist': sdist}
 versioneer.get_version = lambda : "0.4"
 
 # Utilities to build from c or pyx files
